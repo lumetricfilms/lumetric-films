@@ -1,3 +1,6 @@
+import logoIcon from '../assets/lumetric-icon.svg';
+import wordmarkLogo from '../assets/lumetric-wordmark.svg';
+
 const navItems = [
   { label: 'Work', href: '#work' },
   { label: 'Services', href: '#services' },
@@ -10,12 +13,12 @@ export default function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-zinc-950/70 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
         <a href="#top" className="group flex items-center gap-3" aria-label="Lumetric Films home">
-          <span className="relative h-4 w-4 rounded-full bg-cyan-200 shadow-[0_0_24px_rgba(34,211,238,.9)]">
-            <span className="absolute inset-1 rounded-full bg-white" />
-          </span>
-          <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white">
-            Lumetric Films
-          </span>
+          <img src={logoIcon} alt="" className="h-9 w-9 rounded-md" aria-hidden="true" />
+          <img
+            src={wordmarkLogo}
+            alt="Lumetric Films"
+            className="h-9 w-32 object-contain object-left sm:w-40"
+          />
         </a>
         <div className="hidden items-center gap-8 md:flex">
           {navItems.map((item) => (

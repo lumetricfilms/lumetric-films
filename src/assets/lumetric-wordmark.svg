@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Lumetric Films wordmark</title>
+  <desc id="desc">Lumetric Films wordmark with focus frame corners and a cyan glowing light.</desc>
+  <defs>
+    <radialGradient id="dot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="76%" stop-color="#67e8f9"/>
+      <stop offset="100%" stop-color="#0891b2" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="wordmark-glow" x="-120%" y="-120%" width="340%" height="340%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="420" fill="none"/>
+  <g fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="square">
+    <path d="M72 178V92h86"/>
+    <path d="M1042 92h86v86"/>
+    <path d="M72 274v86h86"/>
+    <path d="M1128 274v86h-86"/>
+  </g>
+  <text x="600" y="235" fill="#ffffff" text-anchor="middle" font-family="Inter, Arial Black, Arial, sans-serif" font-size="146" font-weight="900" letter-spacing="4">Lumetric</text>
+  <text x="600" y="342" fill="#ffffff" text-anchor="middle" font-family="Inter, Arial Black, Arial, sans-serif" font-size="58" font-weight="800" letter-spacing="54">Films</text>
+  <circle cx="868" cy="126" r="42" fill="url(#dot)" filter="url(#wordmark-glow)"/>
+</svg>

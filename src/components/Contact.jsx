@@ -3,14 +3,14 @@ import { Instagram, Mail, Phone } from 'lucide-react';
 const contactItems = [
   {
     label: 'Email',
-    value: 'booking@lumetricfilms.com',
-    href: 'mailto:booking@lumetricfilms.com',
+    value: 'lumetricfilms@gmail.com',
+    href: 'mailto:lumetricfilms@gmail.com',
     icon: Mail,
   },
   {
     label: 'Phone',
-    value: '(000) 000-0000',
-    href: 'tel:+10000000000',
+    value: '347 847 3788',
+    href: 'tel:+13478473788',
     icon: Phone,
   },
   {
@@ -41,7 +41,7 @@ export default function Contact() {
               piece needs to carry.
             </p>
             <a
-              href="mailto:booking@lumetricfilms.com?subject=Project%20Booking%20Inquiry"
+              href="mailto:lumetricfilms@gmail.com?subject=Project%20Booking%20Inquiry"
               className="mt-8 inline-flex items-center justify-center rounded-full bg-cyan-200 px-7 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-white"
             >
               Book a Project

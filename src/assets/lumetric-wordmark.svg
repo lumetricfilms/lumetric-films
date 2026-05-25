@@ -23,7 +23,9 @@
     <path d="M72 274v86h86"/>
     <path d="M1128 274v86h-86"/>
   </g>
-  <text x="600" y="235" fill="#ffffff" text-anchor="middle" font-family="Inter, Arial Black, Arial, sans-serif" font-size="146" font-weight="900" letter-spacing="4">Lumetric</text>
+  <text x="792" y="235" fill="#ffffff" text-anchor="end" font-family="Inter, Arial Black, Arial, sans-serif" font-size="146" font-weight="900" letter-spacing="4">Lumetr</text>
+  <rect x="826" y="132" width="34" height="103" rx="2" fill="#ffffff"/>
+  <text x="889" y="235" fill="#ffffff" text-anchor="start" font-family="Inter, Arial Black, Arial, sans-serif" font-size="146" font-weight="900" letter-spacing="4">c</text>
   <text x="600" y="342" fill="#ffffff" text-anchor="middle" font-family="Inter, Arial Black, Arial, sans-serif" font-size="58" font-weight="800" letter-spacing="54">Films</text>
-  <circle cx="868" cy="126" r="42" fill="url(#dot)" filter="url(#wordmark-glow)"/>
+  <circle cx="843" cy="92" r="42" fill="url(#dot)" filter="url(#wordmark-glow)"/>
 </svg>

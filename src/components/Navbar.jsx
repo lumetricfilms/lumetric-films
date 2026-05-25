@@ -32,7 +32,7 @@ export default function Navbar() {
           ))}
         </div>
         <a
-          href="mailto:booking@lumetricfilms.com"
+          href="mailto:lumetricfilms@gmail.com"
           className="rounded-full border border-cyan-300/40 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:border-cyan-200 hover:bg-cyan-300/10"
         >
           Book

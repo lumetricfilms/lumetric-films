@@ -7,19 +7,19 @@ export default function About() {
             About
           </p>
           <h2 className="mt-4 text-4xl font-semibold text-white sm:text-5xl">
-            Cinematic storytelling shaped by light, motion, and emotion.
+            Built by Jordan Williams for cinematic school, music, and social stories.
           </h2>
         </div>
         <div className="space-y-6 text-lg leading-8 text-zinc-300">
           <p>
-            Lumetric Films is a creative video and photography brand focused on
-            professional visuals with a modern cinematic edge. The work centers on
-            atmosphere, timing, and the details that make a scene feel intentional.
+            Lumetric Films is led by founder Jordan Williams, a videographer and editor
+            with 5 years of experience creating school videography, multimedia music
+            videos, and short-form viral content.
           </p>
           <p>
-            From music videos and event coverage to commercial edits and photo sessions,
-            Lumetric builds polished visual stories for artists, brands, and moments that
-            deserve to be remembered with care.
+            The work blends cinematic lighting, movement, emotion, and clean post-production
+            in DaVinci Resolve Studio, shaping polished visuals for artists, schools,
+            brands, and moments that deserve to be remembered with care.
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Camera, Clapperboard, Edit3, Music2, Sparkles } from 'lucide-react';
+import { Camera, Edit3, GraduationCap, Music2, Sparkles } from 'lucide-react';
 
 const services = [
   {
@@ -7,14 +7,14 @@ const services = [
     icon: Music2,
   },
   {
-    title: 'Events',
-    description: 'Cinematic coverage for milestone nights, showcases, and live moments.',
-    icon: Sparkles,
+    title: 'School Videography',
+    description: 'Clean coverage for school events, programs, recaps, and milestone moments.',
+    icon: GraduationCap,
   },
   {
-    title: 'Commercial Work',
-    description: 'Polished brand films, social spots, and product-focused visuals.',
-    icon: Clapperboard,
+    title: 'Short Form Edits',
+    description: 'Fast social cuts for reels, viral clips, campaigns, and creator content.',
+    icon: Sparkles,
   },
   {
     title: 'Photography',

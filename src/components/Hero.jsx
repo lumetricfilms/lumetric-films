@@ -51,7 +51,7 @@ export default function Hero() {
               View Work
             </a>
             <a
-              href="mailto:booking@lumetricfilms.com"
+              href="mailto:lumetricfilms@gmail.com"
               className="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-3 text-sm font-semibold text-white transition hover:border-cyan-200 hover:bg-white/10"
             >
               Book a Project

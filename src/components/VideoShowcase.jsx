@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Play } from 'lucide-react';
 import { showcaseSections } from '../data/showcase.js';
 import LivePreviewPlayer from './LivePreviewPlayer.jsx';
@@ -79,18 +79,18 @@ function CategoryTitle({ section, number, overlay = false }) {
   );
 }
 
-function FullScreenVideo({ video, section, number, onOpen }) {
+function FullScreenVideo({ video, section, showTitle, number, onOpen }) {
   return (
     <section className="vignette relative h-screen w-full overflow-hidden bg-black">
       <button
         type="button"
-        onClick={() => onOpen(video)}
+        onClick={() => onOpen(video, section)}
         aria-label={`Play ${video.title}`}
         className="group block h-full w-full text-left focus:outline-none"
       >
         <LivePreviewPlayer video={video} cover />
         <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/40" />
-        {section ? (
+        {showTitle ? (
           <CategoryTitle section={section} number={number} overlay />
         ) : null}
         <VideoCaption video={video} />
@@ -99,11 +99,11 @@ function FullScreenVideo({ video, section, number, onOpen }) {
   );
 }
 
-function TwoColumnVideo({ video, onOpen }) {
+function TwoColumnVideo({ video, section, onOpen }) {
   return (
     <button
       type="button"
-      onClick={() => onOpen(video)}
+      onClick={() => onOpen(video, section)}
       aria-label={`Play ${video.title}`}
       className="group relative block aspect-video w-full overflow-hidden bg-black text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
     >
@@ -117,7 +117,16 @@ function TwoColumnVideo({ video, onOpen }) {
 }
 
 export default function VideoShowcase() {
-  const [activeVideo, setActiveVideo] = useState(null);
+  const [active, setActive] = useState(null);
+
+  const openVideo = useCallback((video, section) => {
+    setActive({ video, section });
+  }, []);
+  const closeVideo = useCallback(() => setActive(null), []);
+  const selectVideo = useCallback(
+    (video) => setActive((current) => (current ? { ...current, video } : current)),
+    [],
+  );
 
   return (
     <div id="work">
@@ -132,9 +141,10 @@ export default function VideoShowcase() {
                   <FullScreenVideo
                     key={video.id}
                     video={video}
-                    section={groupIndex === 0 && videoIndex === 0 ? section : null}
+                    section={section}
+                    showTitle={groupIndex === 0 && videoIndex === 0}
                     number={number}
-                    onOpen={setActiveVideo}
+                    onOpen={openVideo}
                   />
                 ));
               }
@@ -149,7 +159,7 @@ export default function VideoShowcase() {
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {group.videos.map((video, i) => (
                       <Reveal key={video.id} variant="zoom" delay={i * 120}>
-                        <TwoColumnVideo video={video} onOpen={setActiveVideo} />
+                        <TwoColumnVideo video={video} section={section} onOpen={openVideo} />
                       </Reveal>
                     ))}
                   </div>
@@ -160,7 +170,7 @@ export default function VideoShowcase() {
         );
       })}
 
-      <VideoLightbox video={activeVideo} onClose={() => setActiveVideo(null)} />
+      <VideoLightbox active={active} onClose={closeVideo} onSelect={selectVideo} />
     </div>
   );
 }

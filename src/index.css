@@ -110,6 +110,61 @@ a {
   background: radial-gradient(125% 125% at 50% 45%, transparent 52%, rgba(0, 0, 0, 0.55) 100%);
 }
 
+/* Animated hero background: drifting grid, floating glow spots, pulsing core. */
+@keyframes gridPan {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 72px 72px;
+  }
+}
+
+@keyframes floatSpot {
+  0% {
+    transform: translate(0, 0) scale(0.9);
+    opacity: 0;
+  }
+  25% {
+    opacity: var(--spot-opacity, 0.4);
+  }
+  50% {
+    transform: translate(var(--spot-dx, 24px), var(--spot-dy, -30px)) scale(1.2);
+    opacity: var(--spot-opacity, 0.4);
+  }
+  75% {
+    opacity: calc(var(--spot-opacity, 0.4) * 0.6);
+  }
+  100% {
+    transform: translate(0, 0) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.95);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.12);
+    opacity: 0.85;
+  }
+}
+
+.hero-grid {
+  animation: gridPan 16s linear infinite;
+}
+
+.hero-spot {
+  animation: floatSpot var(--spot-dur, 15s) ease-in-out var(--spot-delay, 0s) infinite;
+}
+
+.hero-glow {
+  animation: pulseGlow 7s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -125,5 +180,15 @@ a {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+  }
+
+  .hero-grid,
+  .hero-spot,
+  .hero-glow {
+    animation: none !important;
+  }
+
+  .hero-spot {
+    opacity: 0.25;
   }
 }

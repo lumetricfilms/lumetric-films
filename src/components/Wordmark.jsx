@@ -55,7 +55,7 @@ export default function Wordmark({ className = '', revealed = true, stemRevealed
           Lumetr
         </text>
         <text
-          x="889"
+          x="864"
           y="235"
           fill="#ffffff"
           textAnchor="start"
@@ -80,19 +80,20 @@ export default function Wordmark({ className = '', revealed = true, stemRevealed
         </text>
       </g>
 
-      {/* The "i" stem, revealed slowly as the flicker stops. */}
+      {/* The "i" stem, sized to the lowercase x-height (matching the "r"),
+          revealed slowly as the flicker stops. */}
       <rect
-        x="826"
-        y="132"
+        x="812"
+        y="155"
         width="34"
-        height="103"
+        height="80"
         rx="2"
         fill="#ffffff"
         style={{ opacity: stemRevealed ? 1 : 0, transition: 'opacity 0.9s ease-out' }}
       />
 
       {/* Only the dot flickers like a bulb at the start; always visible. */}
-      <circle className="i-dot" cx="843" cy="92" r="42" fill="url(#lm-dot)" filter="url(#lm-glow)" />
+      <circle className="i-dot" cx="829" cy="110" r="36" fill="url(#lm-dot)" filter="url(#lm-glow)" />
     </svg>
   );
 }

@@ -1,12 +1,11 @@
 import About from './components/About.jsx';
 import Contact from './components/Contact.jsx';
-import FeaturedReel from './components/FeaturedReel.jsx';
 import Footer from './components/Footer.jsx';
 import Hero from './components/Hero.jsx';
 import Navbar from './components/Navbar.jsx';
 import PhotographyGallery from './components/PhotographyGallery.jsx';
-import SelectedWork from './components/SelectedWork.jsx';
 import Services from './components/Services.jsx';
+import VideoShowcase from './components/VideoShowcase.jsx';
 
 export default function App() {
   return (
@@ -14,9 +13,8 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
-        <FeaturedReel />
+        <VideoShowcase />
         <Services />
-        <SelectedWork />
         <PhotographyGallery />
         <About />
         <Contact />

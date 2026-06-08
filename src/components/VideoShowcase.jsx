@@ -1,100 +1,77 @@
 import { useState } from 'react';
-import { Play } from 'lucide-react';
+import { ChevronDown, Play } from 'lucide-react';
 import { showcaseSections } from '../data/showcase.js';
 import LivePreviewPlayer from './LivePreviewPlayer.jsx';
 import VideoLightbox from './VideoLightbox.jsx';
 
-function VideoTile({ video, onOpen }) {
-  const isFull = video.layout === 'full';
-
-  return (
-    <article className={isFull ? 'lg:col-span-2' : ''}>
-      <button
-        type="button"
-        onClick={() => onOpen(video)}
-        aria-label={`Play ${video.title}`}
-        className="group relative block aspect-video w-full overflow-hidden rounded-lg border border-white/10 bg-zinc-950 text-left shadow-2xl shadow-cyan-950/20 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
-      >
-        <LivePreviewPlayer video={video} />
-
-        <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/10" />
-
-        <span className="pointer-events-none absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-cyan-100 backdrop-blur">
-          <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,.9)]" />
-          Live Preview
-        </span>
-
-        <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/30 bg-black/40 text-white opacity-0 backdrop-blur transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
-            <Play className="ml-1 h-6 w-6" fill="currentColor" aria-hidden="true" />
-          </span>
-        </span>
-
-        <span className="pointer-events-none absolute inset-x-4 bottom-4">
-          <span className="block text-lg font-semibold text-white drop-shadow sm:text-xl">
-            {video.title}
-          </span>
-          {video.role ? (
-            <span className="mt-1 block text-xs uppercase tracking-[0.2em] text-cyan-200">
-              {video.role}
-            </span>
-          ) : null}
-        </span>
-      </button>
-
-      {video.blurb ? (
-        <p className="mt-3 text-sm leading-6 text-zinc-400">{video.blurb}</p>
-      ) : null}
-    </article>
-  );
-}
+// Flatten sections into one full screen tile per video, tagging the first video
+// of each category so it carries the large centered category title overlay.
+const items = showcaseSections.flatMap((section) =>
+  section.videos.map((video, index) => ({
+    video,
+    category: index === 0 ? section : null,
+  })),
+);
 
 export default function VideoShowcase() {
   const [activeVideo, setActiveVideo] = useState(null);
 
   return (
-    <section id="work" className="scroll-mt-24 px-5 py-24 sm:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-16 max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-200">
-            Selected Work
-          </p>
-          <h2 className="mt-4 text-4xl font-semibold text-white sm:text-5xl">
-            Live previews of recent Lumetric work.
-          </h2>
-          <p className="mt-5 text-base leading-7 text-zinc-400">
-            A selection of recent work across live performance, music video,
-            brand, and social. Hover any clip to watch a short silent preview,
-            then click to play the full video with sound.
-          </p>
-        </div>
+    <div id="work">
+      {items.map((item, index) => (
+        <section
+          key={item.video.id}
+          id={index === 0 ? 'top' : undefined}
+          className="relative h-screen w-full overflow-hidden bg-black"
+        >
+          <button
+            type="button"
+            onClick={() => setActiveVideo(item.video)}
+            aria-label={`Play ${item.video.title}`}
+            className="group block h-full w-full text-left focus:outline-none"
+          >
+            <LivePreviewPlayer video={item.video} />
 
-        <div className="space-y-20">
-          {showcaseSections.map((section) => (
-            <div key={section.id} id={section.id} className="scroll-mt-28">
-              <header className="mb-8 max-w-3xl border-b border-white/10 pb-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.4em] text-cyan-200">
-                  {section.eyebrow}
-                </p>
-                <h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
-                  {section.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">
-                  {section.blurb}
-                </p>
-              </header>
+            <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/40" />
 
-              <div className="grid gap-6 lg:grid-cols-2">
-                {section.videos.map((video) => (
-                  <VideoTile key={video.id} video={video} onOpen={setActiveVideo} />
-                ))}
+            {item.category ? (
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+                <h2 className="text-4xl font-semibold uppercase tracking-[0.25em] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,.6)] sm:text-6xl sm:tracking-[0.35em]">
+                  {item.category.eyebrow}
+                </h2>
+                <p className="mt-5 max-w-xl text-sm leading-7 text-zinc-200 drop-shadow sm:text-lg">
+                  {item.category.title}
+                </p>
               </div>
+            ) : null}
+
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-4 p-6 sm:p-10">
+              <div>
+                <p className="text-lg font-semibold text-white drop-shadow sm:text-2xl">
+                  {item.video.title}
+                </p>
+                {item.video.role ? (
+                  <p className="mt-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
+                    {item.video.role}
+                  </p>
+                ) : null}
+              </div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition duration-300 group-hover:border-cyan-200 group-hover:bg-cyan-300/20 group-focus-visible:border-cyan-200 group-focus-visible:bg-cyan-300/20">
+                <Play className="h-4 w-4" fill="currentColor" aria-hidden="true" />
+                Watch full video
+              </span>
             </div>
-          ))}
-        </div>
-      </div>
+
+            {index === 0 ? (
+              <span className="pointer-events-none absolute bottom-28 left-1/2 -translate-x-1/2 animate-bounce text-white/70 motion-reduce:animate-none sm:bottom-32">
+                <ChevronDown className="h-7 w-7" aria-hidden="true" />
+              </span>
+            ) : null}
+          </button>
+        </section>
+      ))}
 
       <VideoLightbox video={activeVideo} onClose={() => setActiveVideo(null)} />
-    </section>
+    </div>
   );
 }

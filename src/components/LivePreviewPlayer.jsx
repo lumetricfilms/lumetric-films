@@ -6,25 +6,19 @@ import {
   thumbnailUrl,
 } from '../lib/youtube.js';
 
-// Devices that can truly hover (desktop pointers) play the preview on hover.
-// Touch devices have no hover, so they autoplay the preview when in view.
-const hoverCapable =
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-// Respect users who ask for less motion: never auto/hover play moving video,
-// just keep the static thumbnail. Clicking still opens the full lightbox.
+// Respect users who ask for less motion: never autoplay moving video, just keep
+// the static full screen thumbnail. Clicking still opens the full lightbox.
 const prefersReducedMotion =
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Plays a silent, looping preview of a single start..end segment of a YouTube
-// video. The player is created lazily (only while the tile is near the
-// viewport) and torn down when it scrolls away so iframes do not accumulate.
+// video, scaled to cover the full screen tile. The preview autoplays whenever
+// the tile is the one on screen; only one preview plays at a time. The player
+// is created lazily while near the viewport and destroyed when it scrolls away.
 export default function LivePreviewPlayer({ video }) {
-  const { youTubeId, start = 0, end, layout } = video;
+  const { youTubeId, start = 0, end } = video;
 
   const containerRef = useRef(null);
   const hostRef = useRef(null);
@@ -34,13 +28,10 @@ export default function LivePreviewPlayer({ video }) {
   const stopPreviewRef = useRef(null);
 
   const [near, setNear] = useState(false);
-  const [armed, setArmed] = useState(!hoverCapable && !prefersReducedMotion);
   const [playing, setPlaying] = useState(false);
-  const [thumbQuality, setThumbQuality] = useState(
-    layout === 'full' ? 'maxresdefault' : 'mqdefault',
-  );
+  const [thumbQuality, setThumbQuality] = useState('maxresdefault');
 
-  const shouldInit = near && armed && !prefersReducedMotion;
+  const shouldInit = near && !prefersReducedMotion;
 
   const stopLoop = useCallback(() => {
     if (loopTimerRef.current) {
@@ -123,30 +114,32 @@ export default function LivePreviewPlayer({ video }) {
     return () => observer.disconnect();
   }, []);
 
-  // On touch devices, drive playback from visibility instead of hover.
+  // Autoplay the preview whenever this tile is the one filling the screen, and
+  // pause it otherwise. Because the tiles are full screen, at most one passes
+  // the 0.55 visibility threshold at a time.
   useEffect(() => {
-    if (hoverCapable || prefersReducedMotion) return undefined;
+    if (prefersReducedMotion) return undefined;
     const el = containerRef.current;
     if (!el) return undefined;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
             startPreview();
           } else {
             stopPreview();
           }
         });
       },
-      { threshold: [0, 0.6, 1] },
+      { threshold: [0, 0.55, 1] },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, [startPreview, stopPreview]);
 
-  // Create the YouTube player while the tile is initialized, and destroy it
-  // (releasing the iframe and loop timer) when it scrolls out of view.
+  // Create the YouTube player while the tile is near, and destroy it (releasing
+  // the iframe and loop timer) when it scrolls out of view.
   useEffect(() => {
     if (!shouldInit) return undefined;
     let cancelled = false;
@@ -220,25 +213,8 @@ export default function LivePreviewPlayer({ video }) {
     };
   }, [shouldInit, youTubeId, start, end, startLoop, stopLoop]);
 
-  const handlePointerEnter = useCallback(() => {
-    if (!hoverCapable || prefersReducedMotion) return;
-    setArmed(true);
-    startPreview();
-  }, [startPreview]);
-
-  const handlePointerLeave = useCallback(() => {
-    if (!hoverCapable || prefersReducedMotion) return;
-    stopPreview();
-  }, [stopPreview]);
-
   return (
-    <div
-      ref={containerRef}
-      className="live-preview absolute inset-0"
-      aria-hidden="true"
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-    >
+    <div ref={containerRef} className="live-preview absolute inset-0" aria-hidden="true">
       <img
         src={thumbnailUrl(youTubeId, thumbQuality)}
         alt=""
@@ -247,13 +223,13 @@ export default function LivePreviewPlayer({ video }) {
         onError={() => {
           if (thumbQuality !== 'hqdefault') setThumbQuality('hqdefault');
         }}
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
           playing ? 'opacity-0' : 'opacity-100'
         }`}
       />
       {shouldInit ? (
         <div
-          className={`absolute inset-0 transition-opacity duration-500 ${
+          className={`yt-cover transition-opacity duration-700 ${
             playing ? 'opacity-100' : 'opacity-0'
           }`}
         >

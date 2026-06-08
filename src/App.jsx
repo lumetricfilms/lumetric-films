@@ -1,7 +1,6 @@
 import About from './components/About.jsx';
 import Contact from './components/Contact.jsx';
 import Footer from './components/Footer.jsx';
-import Hero from './components/Hero.jsx';
 import Navbar from './components/Navbar.jsx';
 import PhotographyGallery from './components/PhotographyGallery.jsx';
 import Services from './components/Services.jsx';
@@ -12,7 +11,6 @@ export default function App() {
     <div className="min-h-screen overflow-x-hidden bg-zinc-950 text-white">
       <Navbar />
       <main>
-        <Hero />
         <VideoShowcase />
         <Services />
         <PhotographyGallery />

@@ -8,7 +8,8 @@
 //   layout: 'full' renders a full width feature tile.
 //   layout: 'half' renders a two column tile (pairs sit side by side).
 //   start / end are in seconds and define the silent looping preview segment.
-//   youTubeId is the video id used for both the preview and the full playback.
+//   youTubeId is the video id used for the looping preview; clicking always
+//   opens the full video from the beginning.
 
 export const showcaseSections = [
   {
@@ -19,16 +20,6 @@ export const showcaseSections = [
       'From packed auditoriums to intimate recitals, we cover live performance with a multi camera eye for motion, light, and the moment a room holds its breath.',
     videos: [
       {
-        id: 'mmcc-bda-show',
-        title: 'May 2026 MMCC Afterschool BDA Show',
-        youTubeId: 'Hgbmk5nZAcI',
-        start: 2003,
-        end: 2011,
-        layout: 'full',
-        role: 'Filmed and edited by Lumetric Films',
-        blurb: 'Highlights from the MMCC afterschool BDA showcase.',
-      },
-      {
         id: 'bda-winter-show',
         title: 'Bronx Dance Academy Winter Show',
         youTubeId: '5DKvqLB0xac',
@@ -37,6 +28,26 @@ export const showcaseSections = [
         layout: 'full',
         role: 'Filmed and edited by Lumetric Films',
         blurb: 'A look inside the Bronx Dance Academy winter show.',
+      },
+      {
+        id: 'mmcc-bda-show',
+        title: 'May 2026 MMCC Afterschool BDA Show',
+        youTubeId: 'Hgbmk5nZAcI',
+        start: 2003,
+        end: 2011,
+        layout: 'half',
+        role: 'Filmed and edited by Lumetric Films',
+        blurb: 'Highlights from the MMCC afterschool BDA showcase.',
+      },
+      {
+        id: 'roots-of-resilience',
+        title: 'Roots of Resilience BDA / P.S. 41 MMCC 2026 Show',
+        youTubeId: 's5fXuhxh-0c',
+        start: 0,
+        end: 8,
+        layout: 'half',
+        role: 'Filmed and edited by Lumetric Films',
+        blurb: 'Roots of Resilience, the 2026 BDA and P.S. 41 MMCC show.',
       },
     ],
   },
@@ -87,14 +98,14 @@ export const showcaseSections = [
         blurb: 'Selected frames from the Gensler submission.',
       },
       {
-        id: 'fitzroy-small',
-        title: 'Fitzroy Small Video',
-        youTubeId: 'e8rJqfqN4_o',
-        start: 116,
-        end: 125,
+        id: 'urban-health-practice',
+        title: 'Urban Health Practice Edit',
+        youTubeId: 'v_3F1Z4T_L8',
+        start: 0,
+        end: 8,
         layout: 'half',
-        role: 'Produced by Lumetric Films',
-        blurb: 'A short brand spot produced for Fitzroy.',
+        role: 'Edited by Lumetric Films',
+        blurb: 'A practice brand edit for Urban Health.',
       },
     ],
   },
@@ -124,6 +135,26 @@ export const showcaseSections = [
         layout: 'half',
         role: 'Anime music video',
         blurb: 'A kinetic anime edit cut to the beat.',
+      },
+      {
+        id: 'unlike-me-tai-lung',
+        title: 'Unlike Me x Kung Fu Panda · Tai Lung',
+        youTubeId: '98M4SbMTGo0',
+        start: 0,
+        end: 8,
+        layout: 'half',
+        role: 'Anime music video',
+        blurb: 'A Tai Lung edit set to Unlike Me.',
+      },
+      {
+        id: 'jjk-culling-games',
+        title: 'JJK Culling Games Edit',
+        youTubeId: 'lilTm918-es',
+        start: 0,
+        end: 8,
+        layout: 'half',
+        role: 'Anime music video',
+        blurb: 'A Jujutsu Kaisen Culling Games edit.',
       },
     ],
   },

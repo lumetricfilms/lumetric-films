@@ -55,12 +55,12 @@ export default function VideoLightbox({ video, onClose }) {
 
   if (!video) return null;
 
+  // Play the full video from the beginning (not the preview timestamp).
   const params = new URLSearchParams({
     autoplay: '1',
     rel: '0',
     modestbranding: '1',
     playsinline: '1',
-    start: String(video.start ?? 0),
   });
   const src = `https://www.youtube-nocookie.com/embed/${video.youTubeId}?${params.toString()}`;
 

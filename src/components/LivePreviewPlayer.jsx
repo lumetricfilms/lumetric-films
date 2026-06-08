@@ -1,23 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  clearActivePreview,
-  loadYouTubeApi,
-  setActivePreview,
-  thumbnailUrl,
-} from '../lib/youtube.js';
+import { loadYouTubeApi, thumbnailUrl } from '../lib/youtube.js';
 
 // Respect users who ask for less motion: never autoplay moving video, just keep
-// the static full screen thumbnail. Clicking still opens the full lightbox.
+// the static thumbnail. Clicking still opens the full lightbox.
 const prefersReducedMotion =
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Plays a silent, looping preview of a single start..end segment of a YouTube
-// video, scaled to cover the full screen tile. The preview autoplays whenever
-// the tile is the one on screen; only one preview plays at a time. The player
-// is created lazily while near the viewport and destroyed when it scrolls away.
-export default function LivePreviewPlayer({ video }) {
+// video. The preview autoplays whenever the tile is in view. With `cover` the
+// video is scaled to fill a full screen tile (cropping overflow); without it
+// the video simply fills its 16:9 tile. The player is created lazily while near
+// the viewport and destroyed when it scrolls away so iframes do not accumulate.
+export default function LivePreviewPlayer({ video, cover = false }) {
   const { youTubeId, start = 0, end } = video;
 
   const containerRef = useRef(null);
@@ -25,7 +21,6 @@ export default function LivePreviewPlayer({ video }) {
   const playerRef = useRef(null);
   const loopTimerRef = useRef(null);
   const wantPlayRef = useRef(false);
-  const stopPreviewRef = useRef(null);
 
   const [near, setNear] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -64,7 +59,6 @@ export default function LivePreviewPlayer({ video }) {
   const stopPreview = useCallback(() => {
     wantPlayRef.current = false;
     stopLoop();
-    clearActivePreview(stopPreviewRef.current);
     const player = playerRef.current;
     if (player && typeof player.pauseVideo === 'function') {
       try {
@@ -76,14 +70,9 @@ export default function LivePreviewPlayer({ video }) {
     setPlaying(false);
   }, [stopLoop]);
 
-  useEffect(() => {
-    stopPreviewRef.current = stopPreview;
-  }, [stopPreview]);
-
   const startPreview = useCallback(() => {
     if (prefersReducedMotion) return;
     wantPlayRef.current = true;
-    setActivePreview(stopPreviewRef.current);
     const player = playerRef.current;
     if (player && typeof player.playVideo === 'function') {
       try {
@@ -114,9 +103,8 @@ export default function LivePreviewPlayer({ video }) {
     return () => observer.disconnect();
   }, []);
 
-  // Autoplay the preview whenever this tile is the one filling the screen, and
-  // pause it otherwise. Because the tiles are full screen, at most one passes
-  // the 0.55 visibility threshold at a time.
+  // Autoplay the preview whenever this tile is sufficiently on screen, pause it
+  // otherwise.
   useEffect(() => {
     if (prefersReducedMotion) return undefined;
     const el = containerRef.current;
@@ -125,14 +113,14 @@ export default function LivePreviewPlayer({ video }) {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
             startPreview();
           } else {
             stopPreview();
           }
         });
       },
-      { threshold: [0, 0.55, 1] },
+      { threshold: [0, 0.5, 1] },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -199,7 +187,6 @@ export default function LivePreviewPlayer({ video }) {
     return () => {
       cancelled = true;
       stopLoop();
-      clearActivePreview(stopPreviewRef.current);
       const player = playerRef.current;
       playerRef.current = null;
       if (player && typeof player.destroy === 'function') {
@@ -229,7 +216,7 @@ export default function LivePreviewPlayer({ video }) {
       />
       {shouldInit ? (
         <div
-          className={`yt-cover transition-opacity duration-700 ${
+          className={`${cover ? 'yt-cover' : 'absolute inset-0'} transition-opacity duration-700 ${
             playing ? 'opacity-100' : 'opacity-0'
           }`}
         >

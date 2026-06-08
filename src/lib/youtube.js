@@ -34,29 +34,8 @@ export function loadYouTubeApi() {
   return apiPromise;
 }
 
-// Returns a thumbnail URL for a video. mqdefault (320x180) is 16:9 and always
-// exists; maxresdefault (1280x720) is sharper but missing on some videos.
-export function thumbnailUrl(videoId, quality = 'mqdefault') {
+// Returns a thumbnail URL for a video. maxresdefault (1280x720) is sharp;
+// callers fall back to hqdefault (which always exists) on error.
+export function thumbnailUrl(videoId, quality = 'maxresdefault') {
   return `https://i.ytimg.com/vi/${videoId}/${quality}.jpg`;
-}
-
-// Single active preview coordinator: only one tile should play its silent
-// preview at a time. Starting a new preview pauses whichever was playing.
-let activeStop = null;
-
-export function setActivePreview(stopFn) {
-  if (activeStop && activeStop !== stopFn) {
-    try {
-      activeStop();
-    } catch {
-      // ignore
-    }
-  }
-  activeStop = stopFn;
-}
-
-export function clearActivePreview(stopFn) {
-  if (activeStop === stopFn) {
-    activeStop = null;
-  }
 }

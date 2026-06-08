@@ -4,12 +4,14 @@ import Footer from './components/Footer.jsx';
 import Hero from './components/Hero.jsx';
 import Navbar from './components/Navbar.jsx';
 import PhotographyGallery from './components/PhotographyGallery.jsx';
+import ScrollProgress from './components/ScrollProgress.jsx';
 import Services from './components/Services.jsx';
 import VideoShowcase from './components/VideoShowcase.jsx';
 
 export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-zinc-950 text-white">
+      <ScrollProgress />
       <Navbar />
       <main>
         <Hero />
@@ -20,6 +22,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <div className="grain-overlay" aria-hidden="true" />
     </div>
   );
 }

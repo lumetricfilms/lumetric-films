@@ -3,6 +3,10 @@ import { Play } from 'lucide-react';
 import { showcaseSections } from '../data/showcase.js';
 import LivePreviewPlayer from './LivePreviewPlayer.jsx';
 import VideoLightbox from './VideoLightbox.jsx';
+import Reveal from './Reveal.jsx';
+
+const total = showcaseSections.length;
+const pad = (n) => String(n).padStart(2, '0');
 
 // Split a category's videos into runs of the same layout so consecutive
 // 'half' videos render together as a two column row.
@@ -30,7 +34,7 @@ function WatchPill() {
 
 function VideoCaption({ video }) {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-4 p-6 sm:p-8">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-end justify-between gap-4 p-6 sm:p-8">
       <div>
         <p className="text-lg font-semibold text-white drop-shadow sm:text-2xl">
           {video.title}
@@ -46,9 +50,38 @@ function VideoCaption({ video }) {
   );
 }
 
-function FullScreenVideo({ video, category, onOpen }) {
+// The large centered category title, used both overlaid on full screen videos
+// and standalone above two column rows.
+function CategoryTitle({ section, number, overlay = false }) {
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-black">
+    <Reveal
+      className={
+        overlay
+          ? 'pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center'
+          : 'flex flex-col items-center px-6 text-center'
+      }
+    >
+      <span className="text-xs font-semibold uppercase tracking-[0.45em] text-cyan-300/90">
+        {pad(number)} <span className="text-cyan-300/40">/ {pad(total)}</span>
+      </span>
+      <h2 className="mt-5 text-4xl font-semibold uppercase tracking-[0.25em] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,.6)] sm:text-6xl sm:tracking-[0.35em]">
+        {section.eyebrow}
+      </h2>
+      <Reveal
+        as="span"
+        variant="line"
+        className="mt-6 block h-px w-24 bg-gradient-to-r from-transparent via-cyan-300 to-transparent"
+      />
+      <p className="mt-6 max-w-xl text-sm leading-7 text-zinc-300 drop-shadow sm:text-base">
+        {section.title}
+      </p>
+    </Reveal>
+  );
+}
+
+function FullScreenVideo({ video, section, number, onOpen }) {
+  return (
+    <section className="vignette relative h-screen w-full overflow-hidden bg-black">
       <button
         type="button"
         onClick={() => onOpen(video)}
@@ -57,15 +90,8 @@ function FullScreenVideo({ video, category, onOpen }) {
       >
         <LivePreviewPlayer video={video} cover />
         <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/40" />
-        {category ? (
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-            <h2 className="text-4xl font-semibold uppercase tracking-[0.25em] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,.6)] sm:text-6xl sm:tracking-[0.35em]">
-              {category.eyebrow}
-            </h2>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-zinc-200 drop-shadow sm:text-lg">
-              {category.title}
-            </p>
-          </div>
+        {section ? (
+          <CategoryTitle section={section} number={number} overlay />
         ) : null}
         <VideoCaption video={video} />
       </button>
@@ -81,23 +107,12 @@ function TwoColumnVideo({ video, onOpen }) {
       aria-label={`Play ${video.title}`}
       className="group relative block aspect-video w-full overflow-hidden bg-black text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
     >
-      <LivePreviewPlayer video={video} />
+      <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+        <LivePreviewPlayer video={video} />
+      </div>
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/0 to-black/10" />
       <VideoCaption video={video} />
     </button>
-  );
-}
-
-function CategoryHeading({ section }) {
-  return (
-    <div className="px-6 py-16 text-center sm:py-20">
-      <h2 className="text-3xl font-semibold uppercase tracking-[0.3em] text-white sm:text-5xl">
-        {section.eyebrow}
-      </h2>
-      <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
-        {section.title}
-      </p>
-    </div>
   );
 }
 
@@ -106,8 +121,9 @@ export default function VideoShowcase() {
 
   return (
     <div id="work">
-      {showcaseSections.map((section) => {
+      {showcaseSections.map((section, sectionIndex) => {
         const groups = groupConsecutive(section.videos);
+        const number = sectionIndex + 1;
         return (
           <div key={section.id} id={section.id}>
             {groups.map((group, groupIndex) => {
@@ -116,7 +132,8 @@ export default function VideoShowcase() {
                   <FullScreenVideo
                     key={video.id}
                     video={video}
-                    category={groupIndex === 0 && videoIndex === 0 ? section : null}
+                    section={groupIndex === 0 && videoIndex === 0 ? section : null}
+                    number={number}
                     onOpen={setActiveVideo}
                   />
                 ));
@@ -124,14 +141,16 @@ export default function VideoShowcase() {
 
               return (
                 <div key={`${section.id}-row-${groupIndex}`}>
-                  {groupIndex === 0 ? <CategoryHeading section={section} /> : null}
+                  {groupIndex === 0 ? (
+                    <div className="py-20 sm:py-28">
+                      <CategoryTitle section={section} number={number} />
+                    </div>
+                  ) : null}
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {group.videos.map((video) => (
-                      <TwoColumnVideo
-                        key={video.id}
-                        video={video}
-                        onOpen={setActiveVideo}
-                      />
+                    {group.videos.map((video, i) => (
+                      <Reveal key={video.id} variant="zoom" delay={i * 120}>
+                        <TwoColumnVideo video={video} onOpen={setActiveVideo} />
+                      </Reveal>
                     ))}
                   </div>
                 </div>

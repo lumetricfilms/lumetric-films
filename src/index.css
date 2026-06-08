@@ -55,6 +55,61 @@ a {
   pointer-events: none;
 }
 
+/* Scroll reveal: fade/rise content into view as the page scrolls. */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal-zoom {
+  opacity: 0;
+  transform: scale(1.05);
+  transition:
+    opacity 1s ease,
+    transform 1.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-zoom.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Accent line that draws in from the left when revealed. */
+.line-draw {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.line-draw.is-visible {
+  transform: scaleX(1);
+}
+
+/* Cinematic film grain across the whole page. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* Edge vignette for full screen video tiles. */
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(125% 125% at 50% 45%, transparent 52%, rgba(0, 0, 0, 0.55) 100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -62,5 +117,13 @@ a {
 
   .live-preview img {
     transition: none;
+  }
+
+  .reveal,
+  .reveal-zoom,
+  .line-draw {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }

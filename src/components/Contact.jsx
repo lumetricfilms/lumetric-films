@@ -1,4 +1,6 @@
 import { Instagram, Mail, Phone } from 'lucide-react';
+import Eyebrow from './Eyebrow.jsx';
+import Reveal from './Reveal.jsx';
 
 const contactItems = [
   {
@@ -25,15 +27,13 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="scroll-mt-24 px-5 py-24 sm:px-8"
+      className="scroll-mt-24 px-5 py-28 sm:px-8"
     >
       <div className="mx-auto max-w-7xl rounded-lg border border-cyan-200/20 bg-[radial-gradient(circle_at_78%_28%,rgba(34,211,238,.18),transparent_24%),linear-gradient(135deg,rgba(24,24,27,.96),rgba(9,9,11,.98))] p-7 sm:p-10 lg:p-14">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-200">
-              Contact
-            </p>
-            <h2 className="mt-4 text-4xl font-semibold text-white sm:text-5xl">
+          <Reveal>
+            <Eyebrow>Contact</Eyebrow>
+            <h2 className="mt-5 text-4xl font-semibold text-white sm:text-5xl">
               Ready to shape the next frame?
             </h2>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
@@ -46,8 +46,8 @@ export default function Contact() {
             >
               Book a Project
             </a>
-          </div>
-          <div className="space-y-4">
+          </Reveal>
+          <Reveal delay={120} className="space-y-4">
             {contactItems.map(({ label, value, href, icon: Icon }) => (
               <a
                 key={label}
@@ -65,7 +65,7 @@ export default function Contact() {
                 </span>
               </a>
             ))}
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

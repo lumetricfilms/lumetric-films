@@ -1,5 +1,6 @@
 import logoIcon from '../assets/lumetric-icon.svg';
 import wordmarkLogo from '../assets/lumetric-wordmark.svg';
+import Reveal from './Reveal.jsx';
 
 export default function Hero() {
   return (
@@ -21,7 +22,7 @@ export default function Hero() {
       </div>
 
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="max-w-4xl">
+        <Reveal className="max-w-4xl">
           <img
             src={logoIcon}
             alt=""
@@ -57,8 +58,12 @@ export default function Hero() {
               Book a Project
             </a>
           </div>
-        </div>
+        </Reveal>
       </div>
+
+      <span className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50">
+        Scroll
+      </span>
     </section>
   );
 }

@@ -120,24 +120,28 @@ a {
   }
 }
 
-@keyframes floatSpot {
+/* Each spot is visible for only a short window of its cycle, so with evenly
+   staggered delays roughly one spot is on screen at a time. */
+@keyframes spotCycle {
   0% {
-    transform: translate(0, 0) scale(0.9);
     opacity: 0;
+    transform: translate(0, 0) scale(0.85);
   }
-  25% {
+  3% {
     opacity: var(--spot-opacity, 0.4);
+    transform: translate(0, 0) scale(0.95);
   }
-  50% {
-    transform: translate(var(--spot-dx, 24px), var(--spot-dy, -30px)) scale(1.2);
+  9% {
     opacity: var(--spot-opacity, 0.4);
+    transform: translate(var(--spot-dx, 20px), var(--spot-dy, -24px)) scale(1.15);
   }
-  75% {
-    opacity: calc(var(--spot-opacity, 0.4) * 0.6);
+  13% {
+    opacity: 0;
+    transform: translate(var(--spot-dx, 20px), var(--spot-dy, -24px)) scale(1.2);
   }
   100% {
-    transform: translate(0, 0) scale(0.9);
     opacity: 0;
+    transform: translate(0, 0) scale(0.85);
   }
 }
 
@@ -154,15 +158,40 @@ a {
 }
 
 .hero-grid {
-  animation: gridPan 16s linear infinite;
+  animation: gridPan 13s linear infinite;
 }
 
 .hero-spot {
-  animation: floatSpot var(--spot-dur, 15s) ease-in-out var(--spot-delay, 0s) infinite;
+  animation: spotCycle var(--spot-dur, 31.5s) ease-in-out var(--spot-delay, 0s) infinite;
 }
 
 .hero-glow {
   animation: pulseGlow 7s ease-in-out infinite;
+}
+
+/* The dot of the "i" flickers like a lightbulb powering on, then stays lit. */
+@keyframes iFlicker {
+  0% { opacity: 0; }
+  4% { opacity: 1; }
+  7% { opacity: 0.1; }
+  10% { opacity: 1; }
+  13% { opacity: 0.2; }
+  16% { opacity: 0.9; }
+  20% { opacity: 0.1; }
+  24% { opacity: 1; }
+  27% { opacity: 0.3; }
+  31% { opacity: 1; }
+  41% { opacity: 0.25; }
+  44% { opacity: 1; }
+  52% { opacity: 0.6; }
+  56% { opacity: 1; }
+  68% { opacity: 0.85; }
+  72% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.i-dot {
+  animation: iFlicker 2.6s linear 0.3s both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -184,11 +213,16 @@ a {
 
   .hero-grid,
   .hero-spot,
-  .hero-glow {
+  .hero-glow,
+  .i-dot {
     animation: none !important;
   }
 
   .hero-spot {
     opacity: 0.25;
+  }
+
+  .i-dot {
+    opacity: 1;
   }
 }

@@ -1,23 +1,44 @@
 # Lumetric Films
 
-Cinematic video and photography portfolio for Lumetric Films.
+Cinematic video and photography portfolio for Lumetric Films. Built with React,
+Vite, and Tailwind CSS. The live site runs on Vercel: https://lumetric-films.vercel.app
 
-## Local Development
+## Run it locally
 
-```bash
-npm install
-npm run dev
-```
-
-## Production Build
+You need Node.js 18 or newer installed (https://nodejs.org). Then, from this
+folder, in a terminal:
 
 ```bash
-npm run build
+npm install      # one time only, downloads the dependencies
+npm run dev      # starts the local development server
 ```
 
-The temporary GitHub Pages deployment uses `base: "/lumetric-films/"` in
-`vite.config.js`. When `lumetricfilms.com` is connected as the custom domain,
-change the Vite base to `"/"`.
+Open the address it prints (usually http://localhost:5173). The page reloads
+automatically every time you save a file. Press Ctrl+C in the terminal to stop.
 
-Portfolio videos should be embedded from YouTube or Google Drive preview URLs.
-Do not commit large video files to this repository.
+Running locally does not affect the live Vercel site in any way. It is the same
+code; you are just previewing it on your own computer.
+
+## Other commands
+
+```bash
+npm run build    # makes the optimized production files in dist/
+npm run preview  # serves that production build locally to double check it
+```
+
+## Editing the videos
+
+All portfolio videos live in `src/data/showcase.js`. Each entry has:
+
+- `youTubeId` the YouTube video id (from the watch URL)
+- `start` / `end` the start and end seconds of the silent looping preview
+- `layout` either `full` (full screen) or `half` (two column)
+- `title` and `role` the captions shown on the tile
+
+Clicking a video opens it full size from the beginning. Videos are embedded from
+YouTube; do not commit large video files to this repository.
+
+## Deployment
+
+The live site deploys on Vercel from this repository. The Vite `base` is `/` so
+it works at the Vercel root domain and when running locally.

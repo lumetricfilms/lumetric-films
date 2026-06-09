@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Play, X } from 'lucide-react';
 import { loadYouTubeApi, thumbnailUrl } from '../lib/youtube.js';
 
@@ -19,6 +19,16 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
   const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
   const playerContainerRef = useRef(null);
+  const playerRef = useRef(null);
+  const playerReadyRef = useRef(false);
+
+  const [swapping, setSwapping] = useState(false);
+
+  // Keep the latest props available to the keyboard handler and player callbacks.
+  const latest = useRef({ video, section, onSelect });
+  useEffect(() => {
+    latest.current = { video, section, onSelect };
+  });
 
   // Focus management + scroll lock for the whole modal session.
   useEffect(() => {
@@ -30,6 +40,19 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
     const onKeyDown = (event) => {
       if (event.key === 'Escape') {
         onClose();
+        return;
+      }
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        const { video: current, section: group, onSelect: select } = latest.current;
+        const list = group?.videos ?? [];
+        const index = list.findIndex((item) => item.youTubeId === current?.youTubeId);
+        if (index >= 0) {
+          const target = event.key === 'ArrowRight' ? index + 1 : index - 1;
+          if (target >= 0 && target < list.length) {
+            event.preventDefault();
+            select(list[target]);
+          }
+        }
         return;
       }
       if (event.key !== 'Tab' || !dialogRef.current) return;
@@ -62,15 +85,6 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
       }
     };
   }, [isOpen, onClose]);
-
-  // Keep the latest props available to the long lived player's callbacks.
-  const latest = useRef({ video, section, onSelect });
-  useEffect(() => {
-    latest.current = { video, section, onSelect };
-  });
-
-  const playerRef = useRef(null);
-  const playerReadyRef = useRef(false);
 
   // Create the player once per open session. Switching videos swaps the source
   // in place (see the next effect) instead of rebuilding the iframe.
@@ -163,6 +177,14 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
     }
   }, [isOpen, video?.youTubeId]);
 
+  // Brief crossfade on the player when the selection changes.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    setSwapping(true);
+    const timer = window.setTimeout(() => setSwapping(false), 240);
+    return () => window.clearTimeout(timer);
+  }, [isOpen, video?.youTubeId]);
+
   // When the selected video changes, bring the player back into view.
   useEffect(() => {
     backdropRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -198,7 +220,12 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
           </button>
 
           <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl shadow-cyan-950/30">
-            <div ref={playerContainerRef} className="lightbox-player absolute inset-0" />
+            <div
+              ref={playerContainerRef}
+              className={`lightbox-player absolute inset-0 transition-opacity duration-300 ${
+                swapping ? 'opacity-0' : 'opacity-100'
+              }`}
+            />
           </div>
 
           <div className="mt-5 flex flex-wrap items-baseline justify-between gap-3">

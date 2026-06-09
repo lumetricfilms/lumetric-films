@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadYouTubeApi, thumbnailUrl } from '../lib/youtube.js';
 
-// Respect users who ask for less motion: never autoplay moving video, just keep
-// the static thumbnail. Clicking still opens the full lightbox.
 const prefersReducedMotion =
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Plays a silent, looping preview of a single start..end segment of a YouTube
-// video. The preview autoplays whenever the tile is in view. With `cover` the
-// video is scaled to fill a full screen tile (cropping overflow); without it
-// the video simply fills its 16:9 tile. The player is created lazily while near
-// the viewport and destroyed when it scrolls away so iframes do not accumulate.
-export default function LivePreviewPlayer({ video, cover = false }) {
+const hoverCapable =
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+// Plays a silent, looping preview of a start..end segment, scaled to cover the
+// tile when `cover`. When `scrub` (desktop only), moving the pointer across the
+// tile scrubs through the full clip. `muted` can be toggled live (used by the
+// hero sound control). Player is created lazily and torn down off screen.
+export default function LivePreviewPlayer({ video, cover = false, scrub = false, muted = true }) {
   const { youTubeId, start = 0, end } = video;
 
   const containerRef = useRef(null);
@@ -21,12 +23,30 @@ export default function LivePreviewPlayer({ video, cover = false }) {
   const playerRef = useRef(null);
   const loopTimerRef = useRef(null);
   const wantPlayRef = useRef(false);
+  const scrubbingRef = useRef(false);
+  const lastScrubRef = useRef(-1);
+  const mutedRef = useRef(muted);
 
   const [near, setNear] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [thumbQuality, setThumbQuality] = useState('maxresdefault');
 
   const shouldInit = near && !prefersReducedMotion;
+  const scrubEnabled = scrub && hoverCapable;
+
+  // Keep the live player's audio in sync with the muted prop.
+  useEffect(() => {
+    mutedRef.current = muted;
+    const player = playerRef.current;
+    if (player && typeof player.mute === 'function') {
+      try {
+        if (muted) player.mute();
+        else player.unMute();
+      } catch {
+        // ignore
+      }
+    }
+  }, [muted]);
 
   const stopLoop = useCallback(() => {
     if (loopTimerRef.current) {
@@ -35,13 +55,16 @@ export default function LivePreviewPlayer({ video, cover = false }) {
     }
   }, []);
 
-  // Poll often enough that short segments do not visibly overshoot `end`, and
-  // always resume play after seeking so the loop never freezes on a still.
   const startLoop = useCallback(() => {
     if (loopTimerRef.current) return;
     loopTimerRef.current = window.setInterval(() => {
       const player = playerRef.current;
-      if (!player || !wantPlayRef.current || typeof player.getCurrentTime !== 'function') {
+      if (
+        !player ||
+        !wantPlayRef.current ||
+        scrubbingRef.current ||
+        typeof player.getCurrentTime !== 'function'
+      ) {
         return;
       }
       const time = player.getCurrentTime();
@@ -76,7 +99,8 @@ export default function LivePreviewPlayer({ video, cover = false }) {
     const player = playerRef.current;
     if (player && typeof player.playVideo === 'function') {
       try {
-        player.mute();
+        if (mutedRef.current) player.mute();
+        else player.unMute();
         player.seekTo(start, true);
         player.playVideo();
         startLoop();
@@ -86,12 +110,9 @@ export default function LivePreviewPlayer({ video, cover = false }) {
     }
   }, [start, startLoop]);
 
-  // Two way viewport observer: mark near when within an expanded margin and not
-  // near once it leaves, which drives player teardown for off screen tiles.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return undefined;
-
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[entries.length - 1];
@@ -103,13 +124,10 @@ export default function LivePreviewPlayer({ video, cover = false }) {
     return () => observer.disconnect();
   }, []);
 
-  // Autoplay the preview whenever this tile is sufficiently on screen, pause it
-  // otherwise.
   useEffect(() => {
     if (prefersReducedMotion) return undefined;
     const el = containerRef.current;
     if (!el) return undefined;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -126,8 +144,6 @@ export default function LivePreviewPlayer({ video, cover = false }) {
     return () => observer.disconnect();
   }, [startPreview, stopPreview]);
 
-  // Create the YouTube player while the tile is near, and destroy it (releasing
-  // the iframe and loop timer) when it scrolls out of view.
   useEffect(() => {
     if (!shouldInit) return undefined;
     let cancelled = false;
@@ -155,7 +171,8 @@ export default function LivePreviewPlayer({ video, cover = false }) {
         },
         events: {
           onReady: (event) => {
-            event.target.mute();
+            if (mutedRef.current) event.target.mute();
+            else event.target.unMute();
             if (wantPlayRef.current) {
               try {
                 event.target.seekTo(start, true);
@@ -200,8 +217,64 @@ export default function LivePreviewPlayer({ video, cover = false }) {
     };
   }, [shouldInit, youTubeId, start, end, startLoop, stopLoop]);
 
+  const handlePointerMove = useCallback(
+    (event) => {
+      const el = containerRef.current;
+      const player = playerRef.current;
+      if (!el || !player || typeof player.seekTo !== 'function') return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 0) return;
+      const frac = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      if (!scrubbingRef.current) {
+        scrubbingRef.current = true;
+        try {
+          player.pauseVideo();
+        } catch {
+          // ignore
+        }
+      }
+      if (Math.abs(frac - lastScrubRef.current) < 0.012) return;
+      lastScrubRef.current = frac;
+      let duration = 0;
+      try {
+        duration = typeof player.getDuration === 'function' ? player.getDuration() : 0;
+      } catch {
+        duration = 0;
+      }
+      if (!duration || !Number.isFinite(duration)) duration = typeof end === 'number' ? end : 0;
+      const target = duration > 0 ? frac * duration : start;
+      try {
+        player.seekTo(target, true);
+      } catch {
+        // ignore
+      }
+    },
+    [end, start],
+  );
+
+  const handlePointerLeave = useCallback(() => {
+    if (!scrubbingRef.current) return;
+    scrubbingRef.current = false;
+    lastScrubRef.current = -1;
+    const player = playerRef.current;
+    if (player) {
+      try {
+        player.seekTo(start, true);
+        if (wantPlayRef.current) player.playVideo();
+      } catch {
+        // ignore
+      }
+    }
+  }, [start]);
+
   return (
-    <div ref={containerRef} className="live-preview absolute inset-0" aria-hidden="true">
+    <div
+      ref={containerRef}
+      className="live-preview absolute inset-0"
+      aria-hidden="true"
+      onPointerMove={scrubEnabled ? handlePointerMove : undefined}
+      onPointerLeave={scrubEnabled ? handlePointerLeave : undefined}
+    >
       <img
         src={thumbnailUrl(youTubeId, thumbQuality)}
         alt=""

@@ -53,6 +53,7 @@ function VideoCaption({ video }) {
 // The large centered category title, used both overlaid on full screen videos
 // and standalone above two column rows.
 function CategoryTitle({ section, number, overlay = false }) {
+  const accent = section.accent || '#67e8f9';
   return (
     <Reveal
       className={
@@ -61,8 +62,11 @@ function CategoryTitle({ section, number, overlay = false }) {
           : 'flex flex-col items-center px-6 text-center'
       }
     >
-      <span className="text-xs font-semibold uppercase tracking-[0.45em] text-cyan-300/90">
-        {pad(number)} <span className="text-cyan-300/40">/ {pad(total)}</span>
+      <span
+        className="text-xs font-semibold uppercase tracking-[0.45em]"
+        style={{ color: accent }}
+      >
+        {pad(number)} <span className="opacity-40">/ {pad(total)}</span>
       </span>
       <h2 className="mt-5 text-4xl font-semibold uppercase tracking-[0.25em] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,.6)] sm:text-6xl sm:tracking-[0.35em]">
         {section.eyebrow}
@@ -70,7 +74,8 @@ function CategoryTitle({ section, number, overlay = false }) {
       <Reveal
         as="span"
         variant="line"
-        className="mt-6 block h-px w-24 bg-gradient-to-r from-transparent via-cyan-300 to-transparent"
+        className="mt-6 block h-px w-24"
+        style={{ background: `linear-gradient(to right, transparent, ${accent}, transparent)` }}
       />
       <p className="mt-6 max-w-xl text-sm leading-7 text-zinc-300 drop-shadow sm:text-base">
         {section.title}
@@ -88,7 +93,7 @@ function FullScreenVideo({ video, section, showTitle, number, onOpen }) {
         aria-label={`Play ${video.title}`}
         className="group block h-full w-full text-left focus:outline-none"
       >
-        <LivePreviewPlayer video={video} cover />
+        <LivePreviewPlayer video={video} cover scrub />
         <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/40" />
         {showTitle ? (
           <CategoryTitle section={section} number={number} overlay />
@@ -108,7 +113,7 @@ function TwoColumnVideo({ video, section, onOpen }) {
       className="group relative block aspect-video w-full overflow-hidden bg-black text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
     >
       <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
-        <LivePreviewPlayer video={video} />
+        <LivePreviewPlayer video={video} scrub />
       </div>
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/0 to-black/10" />
       <VideoCaption video={video} />

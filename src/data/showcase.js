@@ -14,6 +14,7 @@
 export const showcaseSections = [
   {
     id: 'live-performances',
+    accent: '#67e8f9',
     eyebrow: 'Live Performances',
     title: 'Stage shows, captured with cinematic energy.',
     blurb:
@@ -53,6 +54,7 @@ export const showcaseSections = [
   },
   {
     id: 'music-videos',
+    accent: '#c4b5fd',
     eyebrow: 'Music Videos',
     title: 'Performance and story, built around the track.',
     blurb:
@@ -82,6 +84,7 @@ export const showcaseSections = [
   },
   {
     id: 'commercial-brand',
+    accent: '#fcd34d',
     eyebrow: 'Commercial & Brand',
     title: 'High end creative for brands and submissions.',
     blurb:
@@ -111,6 +114,7 @@ export const showcaseSections = [
   },
   {
     id: 'anime-edits',
+    accent: '#fb7185',
     eyebrow: 'Anime Edits',
     title: 'Fast cut AMVs with kinetic motion.',
     blurb:
@@ -160,6 +164,7 @@ export const showcaseSections = [
   },
   {
     id: 'social-short-form',
+    accent: '#6ee7b7',
     eyebrow: 'Social & Short Form',
     title: 'Scroll stopping edits made for social.',
     blurb:

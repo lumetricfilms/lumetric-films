@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import logoIcon from '../assets/lumetric-icon.svg';
 import { showcaseSections } from '../data/showcase.js';
-import LivePreviewPlayer from './LivePreviewPlayer.jsx';
+import { thumbnailUrl } from '../lib/youtube.js';
+import BackgroundVideo from './BackgroundVideo.jsx';
 import Wordmark from './Wordmark.jsx';
 
 const prefersReducedMotion =
@@ -10,10 +11,10 @@ const prefersReducedMotion =
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Use the first portfolio video as the hero background reel, pinned to its own
-// moment so it differs from that video's showcase tile.
-const baseHeroVideo = showcaseSections[0]?.videos?.[0];
-const heroVideo = baseHeroVideo ? { ...baseHeroVideo, start: 359, end: 367 } : undefined;
+// The hero background is a small self-hosted clip of the first video (its 5:59
+// moment), so it loads near instantly. heroVideo only supplies the poster.
+const heroVideo = showcaseSections[0]?.videos?.[0];
+const HERO_CLIP = '/clips/hero.mp4';
 
 // Entrance timeline: the dot flickers (ends ~0.2s delay + 2.8s = 3.0s), then
 // the "i" stem fades in slowly, then everything else appears.
@@ -49,11 +50,13 @@ export default function Hero() {
     >
       {/* Background reel, revealed after the flicker. */}
       <div className={`absolute inset-0 ${fade}`} aria-hidden="true">
-        {heroVideo ? (
-          <div className="vignette absolute inset-0 overflow-hidden">
-            <LivePreviewPlayer video={heroVideo} cover muted={!soundOn} quality="large" />
-          </div>
-        ) : null}
+        <div className="vignette absolute inset-0 overflow-hidden">
+          <BackgroundVideo
+            src={HERO_CLIP}
+            poster={heroVideo ? thumbnailUrl(heroVideo.youTubeId, 'maxresdefault') : undefined}
+            muted={!soundOn}
+          />
+        </div>
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,.68),rgba(9,9,11,.6)_42%,rgba(9,9,11,.88))]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(34,211,238,.12),transparent_36%)]" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-zinc-950 to-transparent" />

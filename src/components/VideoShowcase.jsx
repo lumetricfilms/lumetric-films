@@ -63,7 +63,7 @@ function CategoryTitle({ section, number, overlay = false }) {
       }
     >
       <span
-        className="text-xs font-semibold uppercase tracking-[0.45em]"
+        className="text-xs font-semibold uppercase tracking-[0.45em] drop-shadow-[0_1px_10px_rgba(0,0,0,.85)]"
         style={{ color: accent }}
       >
         {pad(number)} <span className="opacity-40">/ {pad(total)}</span>
@@ -77,7 +77,7 @@ function CategoryTitle({ section, number, overlay = false }) {
         className="mt-6 block h-px w-24"
         style={{ background: `linear-gradient(to right, transparent, ${accent}, transparent)` }}
       />
-      <p className="mt-6 max-w-xl text-sm leading-7 text-zinc-300 drop-shadow sm:text-base">
+      <p className="mt-6 max-w-xl text-sm leading-7 text-zinc-200 drop-shadow-[0_1px_10px_rgba(0,0,0,.8)] sm:text-base">
         {section.title}
       </p>
     </Reveal>
@@ -94,7 +94,7 @@ function FullScreenVideo({ video, section, showTitle, number, onOpen }) {
         className="group block h-full w-full text-left focus:outline-none"
       >
         <LivePreviewPlayer video={video} cover scrub />
-        <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/40" />
+        <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/55" />
         {showTitle ? (
           <CategoryTitle section={section} number={number} overlay />
         ) : null}

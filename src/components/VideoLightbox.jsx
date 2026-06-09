@@ -103,6 +103,14 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
       host.style.height = '100%';
       playerContainerRef.current.appendChild(host);
 
+      const advanceToNext = () => {
+        const { video: current, section: group, onSelect: select } = latest.current;
+        const list = group?.videos ?? [];
+        const index = list.findIndex((item) => item.youTubeId === current?.youTubeId);
+        const next = index >= 0 && index < list.length - 1 ? list[index + 1] : null;
+        if (next) select(next);
+      };
+
       const createdId = latest.current.video?.youTubeId;
       playerRef.current = new YT.Player(host, {
         host: 'https://www.youtube-nocookie.com',
@@ -133,11 +141,11 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
           },
           onStateChange: (event) => {
             if (event.data !== window.YT?.PlayerState?.ENDED) return;
-            const { video: current, section: group, onSelect: select } = latest.current;
-            const list = group?.videos ?? [];
-            const index = list.findIndex((item) => item.youTubeId === current?.youTubeId);
-            const next = index >= 0 && index < list.length - 1 ? list[index + 1] : null;
-            if (next) select(next);
+            advanceToNext();
+          },
+          onError: () => {
+            // A blocked or removed video never fires ENDED; skip to the next.
+            advanceToNext();
           },
         },
       });
@@ -179,7 +187,10 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
 
   // Brief crossfade on the player when the selection changes.
   useEffect(() => {
-    if (!isOpen) return undefined;
+    if (!isOpen) {
+      setSwapping(false);
+      return undefined;
+    }
     setSwapping(true);
     const timer = window.setTimeout(() => setSwapping(false), 240);
     return () => window.clearTimeout(timer);

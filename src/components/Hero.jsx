@@ -52,7 +52,7 @@ export default function Hero() {
             <LivePreviewPlayer video={heroVideo} cover muted={!soundOn} />
           </div>
         ) : null}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,.62),rgba(9,9,11,.45)_42%,rgba(9,9,11,.86))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,.68),rgba(9,9,11,.6)_42%,rgba(9,9,11,.88))]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(34,211,238,.12),transparent_36%)]" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-zinc-950 to-transparent" />
 
@@ -90,7 +90,9 @@ export default function Hero() {
             Cinematic video and photography for artists, brands, and unforgettable moments.
           </p>
           <div
-            className={`mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row ${rise}`}
+            className={`mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row ${rise} ${
+              entered ? '' : 'pointer-events-none'
+            }`}
             style={{ transitionDelay: entered ? '220ms' : '0ms' }}
           >
             <a
@@ -113,8 +115,11 @@ export default function Hero() {
         <button
           type="button"
           onClick={() => setSoundOn((value) => !value)}
-          aria-label={soundOn ? 'Mute background video' : 'Play sound'}
-          className={`absolute bottom-7 right-6 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition hover:border-cyan-200 hover:bg-cyan-300/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${fade}`}
+          aria-pressed={soundOn}
+          aria-label={soundOn ? 'Turn off sound' : 'Turn on sound'}
+          className={`absolute bottom-7 right-6 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition hover:border-cyan-200 hover:bg-cyan-300/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${fade} ${
+            entered ? '' : 'pointer-events-none'
+          }`}
         >
           {soundOn ? (
             <Volume2 className="h-5 w-5" aria-hidden="true" />

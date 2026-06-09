@@ -96,6 +96,7 @@ export default function LivePreviewPlayer({ video, cover = false, scrub = false,
   const startPreview = useCallback(() => {
     if (prefersReducedMotion) return;
     wantPlayRef.current = true;
+    if (scrubbingRef.current) return;
     const player = playerRef.current;
     if (player && typeof player.playVideo === 'function') {
       try {
@@ -189,6 +190,7 @@ export default function LivePreviewPlayer({ video, cover = false, scrub = false,
             if (event.data === state.PLAYING) {
               setPlaying(true);
             } else if (event.data === state.ENDED) {
+              if (scrubbingRef.current) return;
               try {
                 event.target.seekTo(start, true);
                 event.target.playVideo();
@@ -233,23 +235,23 @@ export default function LivePreviewPlayer({ video, cover = false, scrub = false,
           // ignore
         }
       }
-      if (Math.abs(frac - lastScrubRef.current) < 0.012) return;
-      lastScrubRef.current = frac;
       let duration = 0;
       try {
         duration = typeof player.getDuration === 'function' ? player.getDuration() : 0;
       } catch {
         duration = 0;
       }
-      if (!duration || !Number.isFinite(duration)) duration = typeof end === 'number' ? end : 0;
-      const target = duration > 0 ? frac * duration : start;
+      // Wait for real metadata before mapping the pointer to a time.
+      if (!duration || !Number.isFinite(duration) || duration <= 0) return;
+      if (Math.abs(frac - lastScrubRef.current) < 0.012) return;
+      lastScrubRef.current = frac;
       try {
-        player.seekTo(target, true);
+        player.seekTo(frac * duration, true);
       } catch {
         // ignore
       }
     },
-    [end, start],
+    [],
   );
 
   const handlePointerLeave = useCallback(() => {

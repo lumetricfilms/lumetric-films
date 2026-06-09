@@ -134,7 +134,7 @@ export default function VideoShowcase() {
         const groups = groupConsecutive(section.videos);
         const number = sectionIndex + 1;
         return (
-          <div key={section.id} id={section.id}>
+          <div key={section.id} id={section.id} className="scroll-mt-24">
             {groups.map((group, groupIndex) => {
               if (group.layout === 'full') {
                 return group.videos.map((video, videoIndex) => (

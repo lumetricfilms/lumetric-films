@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 import { Play, X } from 'lucide-react';
 import { loadYouTubeApi, thumbnailUrl } from '../lib/youtube.js';
 
+// Note: the cross origin player iframe is intentionally excluded (and given
+// tabindex -1) so it cannot become an un-trappable tab boundary.
 const FOCUSABLE =
-  'button, [href], iframe, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 // Theater style modal: a large player with a strip of every video in the same
 // category below it. Picking a thumbnail swaps the player; when a video ends it
@@ -61,16 +63,24 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
     };
   }, [isOpen, onClose]);
 
-  // Mount a YouTube player for the active video; when it ends, advance to the
-  // next video in the category. The player is created inside a detached child
-  // so React never fights the API over the DOM node.
+  // Keep the latest props available to the long lived player's callbacks.
+  const latest = useRef({ video, section, onSelect });
   useEffect(() => {
-    if (!isOpen || !video) return undefined;
+    latest.current = { video, section, onSelect };
+  });
+
+  const playerRef = useRef(null);
+  const playerReadyRef = useRef(false);
+
+  // Create the player once per open session. Switching videos swaps the source
+  // in place (see the next effect) instead of rebuilding the iframe.
+  useEffect(() => {
+    if (!isOpen) return undefined;
     const container = playerContainerRef.current;
     if (!container) return undefined;
 
     let cancelled = false;
-    let player = null;
+    playerReadyRef.current = false;
 
     loadYouTubeApi().then((YT) => {
       if (cancelled || !YT || !playerContainerRef.current) return;
@@ -79,9 +89,10 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
       host.style.height = '100%';
       playerContainerRef.current.appendChild(host);
 
-      player = new YT.Player(host, {
+      const createdId = latest.current.video?.youTubeId;
+      playerRef.current = new YT.Player(host, {
         host: 'https://www.youtube-nocookie.com',
-        videoId: video.youTubeId,
+        videoId: createdId,
         width: '100%',
         height: '100%',
         playerVars: {
@@ -92,12 +103,27 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
           playsinline: 1,
         },
         events: {
+          onReady: () => {
+            playerReadyRef.current = true;
+            playerContainerRef.current
+              ?.querySelector('iframe')
+              ?.setAttribute('tabindex', '-1');
+            const want = latest.current.video?.youTubeId;
+            if (want && want !== createdId && playerRef.current?.loadVideoById) {
+              try {
+                playerRef.current.loadVideoById(want);
+              } catch {
+                // ignore
+              }
+            }
+          },
           onStateChange: (event) => {
             if (event.data !== window.YT?.PlayerState?.ENDED) return;
-            const list = section?.videos ?? [];
-            const index = list.findIndex((item) => item.youTubeId === video.youTubeId);
+            const { video: current, section: group, onSelect: select } = latest.current;
+            const list = group?.videos ?? [];
+            const index = list.findIndex((item) => item.youTubeId === current?.youTubeId);
             const next = index >= 0 && index < list.length - 1 ? list[index + 1] : null;
-            if (next) onSelect(next);
+            if (next) select(next);
           },
         },
       });
@@ -105,6 +131,9 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
 
     return () => {
       cancelled = true;
+      playerReadyRef.current = false;
+      const player = playerRef.current;
+      playerRef.current = null;
       if (player && typeof player.destroy === 'function') {
         try {
           player.destroy();
@@ -114,7 +143,25 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
       }
       if (container) container.innerHTML = '';
     };
-  }, [isOpen, video?.youTubeId, section, onSelect]);
+  }, [isOpen]);
+
+  // Swap the source inside the existing player when the selection changes.
+  useEffect(() => {
+    if (!isOpen) return;
+    const player = playerRef.current;
+    if (
+      player &&
+      playerReadyRef.current &&
+      typeof player.loadVideoById === 'function' &&
+      video?.youTubeId
+    ) {
+      try {
+        player.loadVideoById(video.youTubeId);
+      } catch {
+        // ignore
+      }
+    }
+  }, [isOpen, video?.youTubeId]);
 
   // When the selected video changes, bring the player back into view.
   useEffect(() => {

@@ -4,7 +4,7 @@ import { Send } from 'lucide-react';
 // To deliver inquiries straight to the inbox, paste a free Web3Forms access key
 // here (get one in 2 minutes at https://web3forms.com using lumetricfilms@gmail.com).
 // Until a key is set, the form falls back to opening the visitor's email app
-// pre-filled, so it is never broken.
+// pre-filled, and shows on-page confirmation either way.
 const ACCESS_KEY = '';
 
 const inputClass =
@@ -26,6 +26,7 @@ export default function ContactForm() {
       const subject = encodeURIComponent(`Project inquiry from ${name || 'the website'}`);
       const body = encodeURIComponent(`${message}\n\nFrom: ${name}\nEmail: ${email}`);
       window.location.href = `mailto:lumetricfilms@gmail.com?subject=${subject}&body=${body}`;
+      setStatus('drafted');
       return;
     }
 
@@ -42,6 +43,7 @@ export default function ContactForm() {
           name,
           email,
           message,
+          botcheck: Boolean(data.get('botcheck')),
         }),
       });
       const result = await response.json();
@@ -58,12 +60,16 @@ export default function ContactForm() {
     }
   };
 
-  if (status === 'success') {
+  if (status === 'success' || status === 'drafted') {
     return (
       <div className="rounded-lg border border-cyan-200/30 bg-cyan-300/[0.05] p-6 text-center">
-        <p className="text-lg font-semibold text-white">Thank you</p>
+        <p className="text-lg font-semibold text-white">
+          {status === 'success' ? 'Thank you' : 'Almost there'}
+        </p>
         <p className="mt-2 text-sm leading-6 text-zinc-300">
-          Your message is on its way. We will get back to you soon.
+          {status === 'success'
+            ? 'Your message is on its way. We will get back to you soon.'
+            : 'We opened a draft in your email app. If nothing happened, email us directly at lumetricfilms@gmail.com.'}
         </p>
       </div>
     );
@@ -72,23 +78,58 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <input name="name" required placeholder="Your name" autoComplete="name" className={inputClass} />
-        <input
-          name="email"
-          type="email"
+        <div>
+          <label htmlFor="cf-name" className="sr-only">
+            Your name
+          </label>
+          <input
+            id="cf-name"
+            name="name"
+            required
+            placeholder="Your name"
+            autoComplete="name"
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label htmlFor="cf-email" className="sr-only">
+            Email
+          </label>
+          <input
+            id="cf-email"
+            name="email"
+            type="email"
+            required
+            placeholder="Email"
+            autoComplete="email"
+            className={inputClass}
+          />
+        </div>
+      </div>
+      <div>
+        <label htmlFor="cf-message" className="sr-only">
+          Project details
+        </label>
+        <textarea
+          id="cf-message"
+          name="message"
           required
-          placeholder="Email"
-          autoComplete="email"
+          rows={4}
+          placeholder="Tell us about the project, the date, the location, and the feeling it should carry."
           className={inputClass}
         />
       </div>
-      <textarea
-        name="message"
-        required
-        rows={4}
-        placeholder="Tell us about the project, the date, the location, and the feeling it should carry."
-        className={inputClass}
+
+      {/* Honeypot: hidden from people, catches bots. */}
+      <input
+        type="checkbox"
+        name="botcheck"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
       />
+
       <button
         type="submit"
         disabled={status === 'sending'}

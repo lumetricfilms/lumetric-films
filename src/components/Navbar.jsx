@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { showcaseSections } from '../data/showcase.js';
 import logoIcon from '../assets/lumetric-icon.svg';
 import wordmarkLogo from '../assets/lumetric-wordmark.svg';
+
+const FOCUSABLE =
+  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 const navItems = [
   { label: 'Work', href: '#work' },
@@ -19,6 +22,12 @@ const categories = showcaseSections.map((section) => ({
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [workOpen, setWorkOpen] = useState(false);
+
+  const menuRef = useRef(null);
+  const closeRef = useRef(null);
+  const workRef = useRef(null);
+  const workBtnRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 32);
@@ -27,19 +36,75 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Close the mobile drawer if the viewport grows to desktop while it is open.
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const onChange = (event) => {
+      if (event.matches) setOpen(false);
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  // Mobile drawer: lock scroll, move focus in, trap Tab, restore focus, Escape.
   useEffect(() => {
     if (!open) return undefined;
+
+    const opener = document.activeElement;
+    closeRef.current?.focus();
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const onKey = (event) => {
-      if (event.key === 'Escape') setOpen(false);
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        return;
+      }
+      if (event.key !== 'Tab' || !menuRef.current) return;
+      const items = Array.from(menuRef.current.querySelectorAll(FOCUSABLE)).filter(
+        (el) => !el.hasAttribute('disabled') && el.offsetParent !== null,
+      );
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    document.addEventListener('keydown', onKey);
+
+    document.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown', onKeyDown);
+      if (opener && typeof opener.focus === 'function') opener.focus();
     };
   }, [open]);
+
+  // Desktop Work dropdown: close on outside click and on Escape.
+  useEffect(() => {
+    if (!workOpen) return undefined;
+    const onPointerDown = (event) => {
+      if (workRef.current && !workRef.current.contains(event.target)) {
+        setWorkOpen(false);
+      }
+    };
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setWorkOpen(false);
+        workBtnRef.current?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [workOpen]);
 
   return (
     <header
@@ -69,23 +134,60 @@ export default function Navbar() {
         </a>
 
         <div className="hidden items-center gap-9 md:flex">
-          <div className="group relative">
-            <a
-              href="#work"
-              className="relative text-base font-medium tracking-wide text-zinc-200 transition hover:text-white lg:text-lg"
+          <div
+            ref={workRef}
+            className="relative"
+            onMouseEnter={() => setWorkOpen(true)}
+            onMouseLeave={() => setWorkOpen(false)}
+          >
+            <button
+              ref={workBtnRef}
+              type="button"
+              aria-haspopup="true"
+              aria-expanded={workOpen}
+              onClick={() => setWorkOpen((value) => !value)}
+              className="inline-flex items-center gap-1 text-base font-medium tracking-wide text-zinc-200 transition hover:text-white lg:text-lg"
             >
               Work
-            </a>
-            <div className="invisible absolute left-1/2 top-full z-50 mt-4 w-56 -translate-x-1/2 translate-y-1 rounded-lg border border-white/10 bg-zinc-900/95 p-2 opacity-0 shadow-2xl shadow-black/50 backdrop-blur-xl transition duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
-              {categories.map((category) => (
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${
+                  workOpen ? 'rotate-180' : ''
+                }`}
+                aria-hidden="true"
+              />
+            </button>
+            <div
+              className={`absolute left-1/2 top-full z-50 w-56 -translate-x-1/2 pt-3 transition duration-200 ${
+                workOpen
+                  ? 'visible translate-y-0 opacity-100'
+                  : 'invisible translate-y-1 opacity-0'
+              }`}
+            >
+              <div
+                role="menu"
+                aria-label="Work categories"
+                className="rounded-lg border border-white/10 bg-zinc-900/95 p-2 shadow-2xl shadow-black/50 backdrop-blur-xl"
+              >
                 <a
-                  key={category.href}
-                  href={category.href}
+                  role="menuitem"
+                  href="#work"
+                  onClick={() => setWorkOpen(false)}
                   className="block rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-300/10 hover:text-cyan-100"
                 >
-                  {category.label}
+                  All Work
                 </a>
-              ))}
+                {categories.map((category) => (
+                  <a
+                    key={category.href}
+                    role="menuitem"
+                    href={category.href}
+                    onClick={() => setWorkOpen(false)}
+                    className="block rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-300/10 hover:text-cyan-100"
+                  >
+                    {category.label}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
           {navItems.slice(1).map((item) => (
@@ -110,6 +212,8 @@ export default function Navbar() {
             type="button"
             onClick={() => setOpen(true)}
             aria-label="Open menu"
+            aria-expanded={open}
+            aria-controls="mobile-menu"
             className="inline-flex h-10 w-10 items-center justify-center rounded-md text-white transition hover:bg-white/10 md:hidden"
           >
             <Menu className="h-6 w-6" aria-hidden="true" />
@@ -118,17 +222,27 @@ export default function Navbar() {
       </nav>
 
       {open ? (
-        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+        <div
+          id="mobile-menu"
+          className="fixed inset-0 z-50 md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
+        >
           <div
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 top-0 flex h-full w-72 max-w-[82vw] flex-col overflow-y-auto border-l border-white/10 bg-zinc-950 p-6">
+          <div
+            ref={menuRef}
+            className="absolute right-0 top-0 flex h-full w-72 max-w-[82vw] flex-col overflow-y-auto border-l border-white/10 bg-zinc-950 p-6"
+          >
             <div className="mb-8 flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200">
                 Menu
               </span>
               <button
+                ref={closeRef}
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"

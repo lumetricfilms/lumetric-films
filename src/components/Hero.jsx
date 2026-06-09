@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Volume2, VolumeX } from 'lucide-react';
 import logoIcon from '../assets/lumetric-icon.svg';
-import { showcaseSections } from '../data/showcase.js';
-import { thumbnailUrl } from '../lib/youtube.js';
-import BackgroundVideo from './BackgroundVideo.jsx';
 import Wordmark from './Wordmark.jsx';
 
 const prefersReducedMotion =
@@ -11,10 +7,19 @@ const prefersReducedMotion =
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// The hero background is a small self-hosted clip of the first video (its 5:59
-// moment), so it loads near instantly. heroVideo only supplies the poster.
-const heroVideo = showcaseSections[0]?.videos?.[0];
-const HERO_CLIP = '/clips/hero.mp4';
+// Glow spots that fade in, drift, and fade out one at a time, mixing cyan,
+// green, and red at varied sizes.
+const SPOT_INTERVAL = 4.5;
+const spots = [
+  { top: '18%', left: '10%', size: 200, dx: '26px', dy: '-34px', opacity: 0.45, color: 'bg-cyan-300/45' },
+  { top: '64%', left: '16%', size: 150, dx: '-22px', dy: '26px', opacity: 0.45, color: 'bg-emerald-400/45' },
+  { top: '24%', left: '80%', size: 240, dx: '32px', dy: '22px', opacity: 0.5, color: 'bg-cyan-300/45' },
+  { top: '70%', left: '84%', size: 160, dx: '-28px', dy: '-24px', opacity: 0.45, color: 'bg-red-500/45' },
+  { top: '50%', left: '46%', size: 120, dx: '20px', dy: '30px', opacity: 0.4, color: 'bg-cyan-300/45' },
+  { top: '84%', left: '50%', size: 130, dx: '-18px', dy: '-28px', opacity: 0.45, color: 'bg-emerald-400/45' },
+  { top: '10%', left: '58%', size: 110, dx: '24px', dy: '26px', opacity: 0.45, color: 'bg-red-500/45' },
+];
+const SPOT_CYCLE = spots.length * SPOT_INTERVAL;
 
 // Entrance timeline: the dot flickers (ends ~0.2s delay + 2.8s = 3.0s), then
 // the "i" stem fades in slowly, then everything else appears.
@@ -24,7 +29,6 @@ const REVEAL_DELAY_MS = 3800;
 export default function Hero() {
   const [stemIn, setStemIn] = useState(prefersReducedMotion);
   const [entered, setEntered] = useState(prefersReducedMotion);
-  const [soundOn, setSoundOn] = useState(false);
 
   useEffect(() => {
     if (prefersReducedMotion) return undefined;
@@ -48,24 +52,40 @@ export default function Hero() {
       id="top"
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 px-5 pt-28 sm:px-8"
     >
-      {/* Background reel, revealed after the flicker. */}
+      {/* Decorative background, revealed after the flicker. */}
       <div className={`absolute inset-0 ${fade}`} aria-hidden="true">
-        <div className="vignette absolute inset-0 overflow-hidden">
-          <BackgroundVideo
-            src={HERO_CLIP}
-            poster={heroVideo ? thumbnailUrl(heroVideo.youTubeId, 'maxresdefault') : undefined}
-            muted={!soundOn}
-          />
-        </div>
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,.68),rgba(9,9,11,.6)_42%,rgba(9,9,11,.88))]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(34,211,238,.12),transparent_36%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(34,211,238,.22),transparent_30%),linear-gradient(135deg,rgba(3,7,18,.95),rgba(9,9,11,.7)_45%,rgba(0,0,0,.98))]" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-zinc-950 to-transparent" />
 
+        <div className="hero-grid absolute inset-0 opacity-[0.1] [background-image:linear-gradient(rgba(255,255,255,.65)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.65)_1px,transparent_1px)] [background-size:72px_72px]" />
+
+        <div className="pointer-events-none absolute inset-0">
+          {spots.map((spot, index) => (
+            <span
+              key={index}
+              className={`hero-spot absolute rounded-full blur-3xl ${spot.color}`}
+              style={{
+                top: spot.top,
+                left: spot.left,
+                width: spot.size,
+                height: spot.size,
+                '--spot-dx': spot.dx,
+                '--spot-dy': spot.dy,
+                '--spot-opacity': spot.opacity,
+                '--spot-dur': `${SPOT_CYCLE}s`,
+                '--spot-delay': `${index * SPOT_INTERVAL}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="hero-glow pointer-events-none absolute left-1/2 top-1/2 h-[460px] w-[460px] rounded-full bg-cyan-400/15 blur-3xl" />
+
         <div className="pointer-events-none absolute inset-x-5 top-28 bottom-12 hidden sm:block">
-          <span className="absolute left-0 top-0 h-16 w-16 border-l-2 border-t-2 border-white/50" />
-          <span className="absolute right-0 top-0 h-16 w-16 border-r-2 border-t-2 border-white/50" />
-          <span className="absolute bottom-0 left-0 h-16 w-16 border-b-2 border-l-2 border-white/50" />
-          <span className="absolute bottom-0 right-0 h-16 w-16 border-b-2 border-r-2 border-white/50" />
+          <span className="absolute left-0 top-0 h-16 w-16 border-l-2 border-t-2 border-white/60" />
+          <span className="absolute right-0 top-0 h-16 w-16 border-r-2 border-t-2 border-white/60" />
+          <span className="absolute bottom-0 left-0 h-16 w-16 border-b-2 border-l-2 border-white/60" />
+          <span className="absolute bottom-0 right-0 h-16 w-16 border-b-2 border-r-2 border-white/60" />
         </div>
       </div>
 
@@ -89,7 +109,7 @@ export default function Hero() {
             />
           </h1>
           <p
-            className={`mt-8 max-w-2xl text-xl leading-8 text-zinc-200 sm:text-2xl sm:leading-9 ${rise}`}
+            className={`mt-8 max-w-2xl text-xl leading-8 text-zinc-300 sm:text-2xl sm:leading-9 ${rise}`}
             style={{ transitionDelay: entered ? '120ms' : '0ms' }}
           >
             Cinematic video and photography for artists, brands, and unforgettable moments.
@@ -116,26 +136,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {heroVideo ? (
-        <button
-          type="button"
-          onClick={() => setSoundOn((value) => !value)}
-          aria-pressed={soundOn}
-          aria-label={soundOn ? 'Turn off sound' : 'Turn on sound'}
-          className={`absolute bottom-7 right-6 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition hover:border-cyan-200 hover:bg-cyan-300/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${fade} ${
-            entered ? '' : 'pointer-events-none'
-          }`}
-        >
-          {soundOn ? (
-            <Volume2 className="h-5 w-5" aria-hidden="true" />
-          ) : (
-            <VolumeX className="h-5 w-5" aria-hidden="true" />
-          )}
-        </button>
-      ) : null}
-
       <span
-        className={`pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.4em] text-white/60 ${fade}`}
+        className={`pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 ${fade}`}
       >
         Scroll
       </span>

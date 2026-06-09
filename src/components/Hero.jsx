@@ -51,7 +51,7 @@ export default function Hero() {
       <div className={`absolute inset-0 ${fade}`} aria-hidden="true">
         {heroVideo ? (
           <div className="vignette absolute inset-0 overflow-hidden">
-            <LivePreviewPlayer video={heroVideo} cover muted={!soundOn} />
+            <LivePreviewPlayer video={heroVideo} cover muted={!soundOn} quality="large" />
           </div>
         ) : null}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,.68),rgba(9,9,11,.6)_42%,rgba(9,9,11,.88))]" />

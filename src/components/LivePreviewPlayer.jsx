@@ -15,7 +15,13 @@ const hoverCapable =
 // tile when `cover`. When `scrub` (desktop only), moving the pointer across the
 // tile scrubs through the full clip. `muted` can be toggled live (used by the
 // hero sound control). Player is created lazily and torn down off screen.
-export default function LivePreviewPlayer({ video, cover = false, scrub = false, muted = true }) {
+export default function LivePreviewPlayer({
+  video,
+  cover = false,
+  scrub = false,
+  muted = true,
+  quality,
+}) {
   const { youTubeId, start = 0, end } = video;
 
   const containerRef = useRef(null);
@@ -174,6 +180,13 @@ export default function LivePreviewPlayer({ video, cover = false, scrub = false,
           onReady: (event) => {
             if (mutedRef.current) event.target.mute();
             else event.target.unMute();
+            if (quality && typeof event.target.setPlaybackQuality === 'function') {
+              try {
+                event.target.setPlaybackQuality(quality);
+              } catch {
+                // ignore; YouTube may override quality
+              }
+            }
             if (wantPlayRef.current) {
               try {
                 event.target.seekTo(start, true);

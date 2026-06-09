@@ -17,7 +17,7 @@ export default function ClosingCTA() {
     <section className="vignette relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-black px-5 py-28 sm:px-8">
       {closingVideo ? (
         <div className="absolute inset-0 overflow-hidden">
-          <LivePreviewPlayer video={closingVideo} cover />
+          <LivePreviewPlayer video={closingVideo} cover quality="large" />
         </div>
       ) : null}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,.72),rgba(9,9,11,.6)_45%,rgba(9,9,11,.85))]" />

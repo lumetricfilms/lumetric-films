@@ -24,8 +24,8 @@ export default function App() {
         <Services />
         <PhotographyGallery />
         <About />
-        <Contact />
         <ClosingCTA />
+        <Contact />
       </main>
       <Footer />
       <div className="grain-overlay" aria-hidden="true" />

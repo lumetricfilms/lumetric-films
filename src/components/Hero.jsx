@@ -10,8 +10,10 @@ const prefersReducedMotion =
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Use the first portfolio video as the hero background reel.
-const heroVideo = showcaseSections[0]?.videos?.[0];
+// Use the first portfolio video as the hero background reel, pinned to its own
+// moment so it differs from that video's showcase tile.
+const baseHeroVideo = showcaseSections[0]?.videos?.[0];
+const heroVideo = baseHeroVideo ? { ...baseHeroVideo, start: 359, end: 367 } : undefined;
 
 // Entrance timeline: the dot flickers (ends ~0.2s delay + 2.8s = 3.0s), then
 // the "i" stem fades in slowly, then everything else appears.

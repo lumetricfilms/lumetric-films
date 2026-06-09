@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import About from './components/About.jsx';
 import Contact from './components/Contact.jsx';
 import Footer from './components/Footer.jsx';
@@ -23,6 +24,7 @@ export default function App() {
       </main>
       <Footer />
       <div className="grain-overlay" aria-hidden="true" />
+      <Analytics />
     </div>
   );
 }

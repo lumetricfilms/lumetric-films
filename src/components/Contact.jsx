@@ -1,4 +1,5 @@
 import { Instagram, Mail, Phone } from 'lucide-react';
+import ContactForm from './ContactForm.jsx';
 import Eyebrow from './Eyebrow.jsx';
 import Reveal from './Reveal.jsx';
 
@@ -30,7 +31,7 @@ export default function Contact() {
       className="scroll-mt-24 px-5 py-28 sm:px-8"
     >
       <div className="mx-auto max-w-7xl rounded-lg border border-cyan-200/20 bg-[radial-gradient(circle_at_78%_28%,rgba(34,211,238,.18),transparent_24%),linear-gradient(135deg,rgba(24,24,27,.96),rgba(9,9,11,.98))] p-7 sm:p-10 lg:p-14">
-        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <Reveal>
             <Eyebrow>Contact</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold text-white sm:text-5xl">
@@ -40,12 +41,9 @@ export default function Contact() {
               Share the project, date, location, and the kind of feeling the finished
               piece needs to carry.
             </p>
-            <a
-              href="mailto:lumetricfilms@gmail.com?subject=Project%20Booking%20Inquiry"
-              className="mt-8 inline-flex items-center justify-center rounded-full bg-cyan-200 px-7 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-white"
-            >
-              Book a Project
-            </a>
+            <div className="mt-8">
+              <ContactForm />
+            </div>
           </Reveal>
           <Reveal delay={120} className="space-y-4">
             {contactItems.map(({ label, value, href, icon: Icon }) => (

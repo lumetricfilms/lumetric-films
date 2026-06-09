@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { Play, X } from 'lucide-react';
-import { thumbnailUrl } from '../lib/youtube.js';
+import { loadYouTubeApi, thumbnailUrl } from '../lib/youtube.js';
 
 const FOCUSABLE =
   'button, [href], iframe, input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 // Theater style modal: a large player with a strip of every video in the same
-// category below it. Picking a thumbnail swaps the player (from the start, with
-// sound) without leaving the modal. Behaves as a real focus trapping dialog.
+// category below it. Picking a thumbnail swaps the player; when a video ends it
+// autoplays the next one in the category. Behaves as a focus trapping dialog.
 export default function VideoLightbox({ active, onClose, onSelect }) {
   const video = active?.video ?? null;
   const section = active?.section ?? null;
@@ -16,7 +16,9 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
   const backdropRef = useRef(null);
   const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
+  const playerContainerRef = useRef(null);
 
+  // Focus management + scroll lock for the whole modal session.
   useEffect(() => {
     if (!isOpen) return undefined;
 
@@ -59,6 +61,61 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
     };
   }, [isOpen, onClose]);
 
+  // Mount a YouTube player for the active video; when it ends, advance to the
+  // next video in the category. The player is created inside a detached child
+  // so React never fights the API over the DOM node.
+  useEffect(() => {
+    if (!isOpen || !video) return undefined;
+    const container = playerContainerRef.current;
+    if (!container) return undefined;
+
+    let cancelled = false;
+    let player = null;
+
+    loadYouTubeApi().then((YT) => {
+      if (cancelled || !YT || !playerContainerRef.current) return;
+      const host = document.createElement('div');
+      host.style.width = '100%';
+      host.style.height = '100%';
+      playerContainerRef.current.appendChild(host);
+
+      player = new YT.Player(host, {
+        host: 'https://www.youtube-nocookie.com',
+        videoId: video.youTubeId,
+        width: '100%',
+        height: '100%',
+        playerVars: {
+          autoplay: 1,
+          controls: 1,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+        },
+        events: {
+          onStateChange: (event) => {
+            if (event.data !== window.YT?.PlayerState?.ENDED) return;
+            const list = section?.videos ?? [];
+            const index = list.findIndex((item) => item.youTubeId === video.youTubeId);
+            const next = index >= 0 && index < list.length - 1 ? list[index + 1] : null;
+            if (next) onSelect(next);
+          },
+        },
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      if (player && typeof player.destroy === 'function') {
+        try {
+          player.destroy();
+        } catch {
+          // ignore
+        }
+      }
+      if (container) container.innerHTML = '';
+    };
+  }, [isOpen, video?.youTubeId, section, onSelect]);
+
   // When the selected video changes, bring the player back into view.
   useEffect(() => {
     backdropRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -66,13 +123,6 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
 
   if (!isOpen) return null;
 
-  const params = new URLSearchParams({
-    autoplay: '1',
-    rel: '0',
-    modestbranding: '1',
-    playsinline: '1',
-  });
-  const src = `https://www.youtube-nocookie.com/embed/${video.youTubeId}?${params.toString()}`;
   const playlist = section?.videos ?? [video];
 
   return (
@@ -100,16 +150,8 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
 
-          <div className="aspect-video w-full overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl shadow-cyan-950/30">
-            <iframe
-              key={video.youTubeId}
-              className="h-full w-full"
-              src={src}
-              title={video.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
+          <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl shadow-cyan-950/30">
+            <div ref={playerContainerRef} className="lightbox-player absolute inset-0" />
           </div>
 
           <div className="mt-5 flex flex-wrap items-baseline justify-between gap-3">

@@ -25,13 +25,6 @@ export default function PhotographyGallery() {
                   className="absolute inset-0 scale-100 bg-cover bg-center transition duration-700 group-hover:scale-105"
                   style={{ backgroundImage: image.image }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 transition group-hover:opacity-60" />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <p className="text-xs uppercase tracking-[0.24em] text-cyan-100">
-                    {image.category}
-                  </p>
-                  <h3 className="mt-2 text-xl font-semibold text-white">{image.title}</h3>
-                </div>
               </article>
             </Reveal>
           ))}

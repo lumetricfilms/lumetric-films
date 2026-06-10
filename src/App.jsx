@@ -8,6 +8,7 @@ import Footer from './components/Footer.jsx';
 import Hero from './components/Hero.jsx';
 import Navbar from './components/Navbar.jsx';
 import PhotographyGallery from './components/PhotographyGallery.jsx';
+import PhotographyPricing from './components/PhotographyPricing.jsx';
 import Pricing from './components/Pricing.jsx';
 import ScrollProgress from './components/ScrollProgress.jsx';
 import Services from './components/Services.jsx';
@@ -25,6 +26,7 @@ export default function App() {
         <Services />
         <Pricing />
         <PhotographyGallery />
+        <PhotographyPricing />
         <About />
         <ClosingCTA />
         <Contact />

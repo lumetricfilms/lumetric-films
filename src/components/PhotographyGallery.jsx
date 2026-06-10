@@ -18,11 +18,11 @@ export default function PhotographyGallery() {
               key={image.title}
               variant="zoom"
               delay={(index % 3) * 110}
-              className={index === 0 || index === 3 ? 'sm:row-span-2' : ''}
+              className={index === 0 || index === 1 ? 'sm:row-span-2' : ''}
             >
               <article className="group relative h-full overflow-hidden rounded-lg border border-white/10 bg-zinc-900">
                 <div
-                  className="absolute inset-0 scale-100 transition duration-700 group-hover:scale-105"
+                  className="absolute inset-0 scale-100 bg-cover bg-center transition duration-700 group-hover:scale-105"
                   style={{ backgroundImage: image.image }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 transition group-hover:opacity-60" />

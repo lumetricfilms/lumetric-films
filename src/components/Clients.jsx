@@ -1,6 +1,6 @@
 import Reveal from './Reveal.jsx';
 
-const clients = ['Bronx Dance Academy', 'MMCC', 'Puri', 'Gensler', 'Fitzroy'];
+const clients = ['Bronx Dance Academy', 'MMCC', 'Puri'];
 
 const stats = [
   { value: '5+', label: 'Years filming' },

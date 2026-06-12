@@ -4,6 +4,60 @@ import { loadYouTubeApi } from '../lib/youtube.js';
 import { isSelfHosted, posterFor, watchUrl } from '../lib/video.js';
 import useFocusTrap from '../lib/useFocusTrap.js';
 
+// Theater player for self-hosted videos. With `hlsSrc`, playback adapts to
+// the viewer's bandwidth (1080p/720p/480p rungs) so long shows don't stall
+// on weak connections: Safari plays HLS natively, other browsers load hls.js
+// on demand, and any fatal HLS error falls back to the plain MP4 `src`.
+function NativeTheater({ video, swapping, onEnded }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !video.hlsSrc) return undefined;
+    let hls;
+    let cancelled = false;
+    if (el.canPlayType('application/vnd.apple.mpegurl')) {
+      el.src = video.hlsSrc;
+    } else {
+      import('hls.js').then(({ default: Hls }) => {
+        if (cancelled || !ref.current) return;
+        if (Hls.isSupported()) {
+          hls = new Hls({ maxBufferLength: 30, backBufferLength: 30 });
+          hls.loadSource(video.hlsSrc);
+          hls.attachMedia(el);
+          hls.on(Hls.Events.ERROR, (_event, data) => {
+            if (!data.fatal) return;
+            hls.destroy();
+            el.src = video.src;
+            el.play().catch(() => {});
+          });
+        } else {
+          el.src = video.src;
+        }
+      });
+    }
+    return () => {
+      cancelled = true;
+      hls?.destroy();
+    };
+  }, [video.hlsSrc, video.src]);
+
+  return (
+    <video
+      ref={ref}
+      src={video.hlsSrc ? undefined : video.src}
+      poster={posterFor(video)}
+      controls
+      autoPlay
+      playsInline
+      onEnded={onEnded}
+      className={`absolute inset-0 h-full w-full bg-black transition-opacity duration-300 ${
+        swapping ? 'opacity-0' : 'opacity-100'
+      }`}
+    />
+  );
+}
+
 // Theater style modal: a large player with a strip of every video in the same
 // category below it. Picking a thumbnail swaps the player; when a video ends it
 // autoplays the next one in the category. Behaves as a focus trapping dialog.
@@ -286,17 +340,11 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
 
           <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl shadow-cyan-950/30">
             {isNative ? (
-              <video
+              <NativeTheater
                 key={video.id}
-                src={video.src}
-                poster={posterFor(video)}
-                controls
-                autoPlay
-                playsInline
+                video={video}
+                swapping={swapping}
                 onEnded={advanceToNext}
-                className={`absolute inset-0 h-full w-full bg-black transition-opacity duration-300 ${
-                  swapping ? 'opacity-0' : 'opacity-100'
-                }`}
               />
             ) : playerState === 'unavailable' ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">

@@ -4,12 +4,13 @@ import LivePreviewPlayer from './LivePreviewPlayer.jsx';
 import Reveal from './Reveal.jsx';
 
 // Reuse a music video as the closing backdrop (different from the hero reel),
-// pinned to its own moment so it differs from that video's showcase tile.
+// pinned to its own moment so it differs from that video's showcase tile
+// (the tile plays 130-136 per the owner's timestamp sheet).
 const baseClosingVideo =
   showcaseSections.find((section) => section.id === 'music-videos')?.videos?.[0] ??
   showcaseSections[0]?.videos?.[0];
 const closingVideo = baseClosingVideo
-  ? { ...baseClosingVideo, start: 130, end: 136 }
+  ? { ...baseClosingVideo, start: 87, end: 93 }
   : undefined;
 
 export default function ClosingCTA() {

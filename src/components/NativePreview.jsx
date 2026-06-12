@@ -23,7 +23,9 @@ export default function NativePreview({ video, scrub = false, muted = true, susp
   const [near, setNear] = useState(false);
   const [playing, setPlaying] = useState(false);
 
-  const shouldInit = near && !prefersReducedMotion();
+  // Unmount the element entirely while suspended (lightbox open) — pause()
+  // alone lets Chrome keep filling buffers, starving the theater stream.
+  const shouldInit = near && !suspended && !prefersReducedMotion();
   const scrubEnabled = scrub && hoverCapable();
 
   useEffect(() => {
@@ -150,13 +152,15 @@ export default function NativePreview({ video, scrub = false, muted = true, susp
 
   const handleLoadedMetadata = useCallback(() => {
     const el = videoRef.current;
-    if (!el) return;
+    if (!el || !wantPlayRef.current || scrubbingRef.current) return;
+    // Only seek when playback is actually wanted — seeking a mounted-but-idle
+    // tile forces the browser to fetch media data while paused.
     try {
       el.currentTime = start;
     } catch {
       // ignore
     }
-    if (wantPlayRef.current && !scrubbingRef.current) el.play().catch(() => {});
+    el.play().catch(() => {});
   }, [start]);
 
   const handlePointerMove = useCallback((event) => {

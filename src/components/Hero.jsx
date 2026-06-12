@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion } from '../lib/media.js';
 import logoIcon from '../assets/lumetric-icon.svg';
 import Wordmark from './Wordmark.jsx';
@@ -46,6 +46,20 @@ export default function Hero() {
   const [skipIntro] = useState(() => prefersReducedMotion() || introAlreadySeen());
   const [stemIn, setStemIn] = useState(skipIntro);
   const [entered, setEntered] = useState(skipIntro);
+  const sectionRef = useRef(null);
+  // Pause the infinite hero animations while scrolled past the hero, so they
+  // stop consuming compositor/paint time for the rest of the page.
+  const [idle, setIdle] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => setIdle(!entries[entries.length - 1].isIntersecting),
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (skipIntro) return undefined;
@@ -70,14 +84,18 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-svh items-center justify-center overflow-hidden bg-zinc-950 px-5 pt-28 sm:px-8"
+      ref={sectionRef}
+      className={`relative flex min-h-svh items-center justify-center overflow-hidden bg-zinc-950 px-5 pt-28 sm:px-8 ${
+        idle ? 'hero-idle' : ''
+      }`}
     >
       {/* Decorative background, revealed after the flicker. */}
       <div className={`absolute inset-0 ${fade}`} aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(34,211,238,.22),transparent_30%),linear-gradient(135deg,rgba(3,7,18,.95),rgba(9,9,11,.7)_45%,rgba(0,0,0,.98))]" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-zinc-950 to-transparent" />
 
-        <div className="hero-grid absolute inset-0 opacity-[0.1] [background-image:linear-gradient(rgba(255,255,255,.65)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.65)_1px,transparent_1px)] [background-size:72px_72px]" />
+        {/* Oversized by one 72px cell so the transform pan never shows an edge. */}
+        <div className="hero-grid absolute -inset-[72px] opacity-[0.1] [background-image:linear-gradient(rgba(255,255,255,.65)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.65)_1px,transparent_1px)] [background-size:72px_72px]" />
 
         <div className="pointer-events-none absolute inset-0">
           {spots.map((spot, index) => (

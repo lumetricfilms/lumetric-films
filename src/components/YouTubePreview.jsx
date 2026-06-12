@@ -113,18 +113,31 @@ export default function YouTubePreview({
     }
   }, [start, startLoop]);
 
+  // Hysteresis: create the player when a tile comes within 250px, but only
+  // tear it down once it's a full 1500px away. Normal scrolling then pauses
+  // players instead of destroy/re-create churn (each re-creation boots a
+  // fresh ~1.7MB YouTube embed document).
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return undefined;
-    const observer = new IntersectionObserver(
+    const createObserver = new IntersectionObserver(
       (entries) => {
-        const entry = entries[entries.length - 1];
-        setNear(entry.isIntersecting);
+        if (entries[entries.length - 1].isIntersecting) setNear(true);
       },
       { rootMargin: '250px 0px' },
     );
-    observer.observe(el);
-    return () => observer.disconnect();
+    const destroyObserver = new IntersectionObserver(
+      (entries) => {
+        if (!entries[entries.length - 1].isIntersecting) setNear(false);
+      },
+      { rootMargin: '1500px 0px' },
+    );
+    createObserver.observe(el);
+    destroyObserver.observe(el);
+    return () => {
+      createObserver.disconnect();
+      destroyObserver.disconnect();
+    };
   }, []);
 
   useEffect(() => {

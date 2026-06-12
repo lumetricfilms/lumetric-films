@@ -145,13 +145,15 @@ h3 {
   background: radial-gradient(125% 125% at 50% 45%, transparent 52%, rgba(0, 0, 0, 0.55) 100%);
 }
 
-/* Animated hero background: drifting grid, floating glow spots, pulsing core. */
+/* Animated hero background: drifting grid, floating glow spots, pulsing core.
+   The grid pans via transform (compositor-only); animating background-position
+   would repaint the layer every frame for the lifetime of the page. */
 @keyframes gridPan {
   from {
-    background-position: 0 0;
+    transform: translate(-72px, -72px);
   }
   to {
-    background-position: 72px 72px;
+    transform: translate(0, 0);
   }
 }
 
@@ -194,6 +196,15 @@ h3 {
 
 .hero-grid {
   animation: gridPan 13s linear infinite;
+  will-change: transform;
+}
+
+/* Stop hero animations entirely while the hero is scrolled out of view. */
+.hero-idle .hero-grid,
+.hero-idle .hero-spot,
+.hero-idle .hero-glow,
+.hero-idle .i-dot {
+  animation-play-state: paused;
 }
 
 .hero-spot {

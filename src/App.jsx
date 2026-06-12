@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
+import { loadYouTubeApi } from './lib/youtube.js';
 import About from './components/About.jsx';
 import Clients from './components/Clients.jsx';
 import ClosingCTA from './components/ClosingCTA.jsx';
@@ -26,6 +27,14 @@ export default function App() {
     if (!hash || hash.startsWith('#play-')) return;
     const el = document.getElementById(hash.slice(1));
     if (el) window.requestAnimationFrame(() => el.scrollIntoView());
+  }, []);
+
+  // Warm up the YouTube IFrame API once the main thread is idle — takes
+  // ~500ms off the first YouTube tile preview without competing with load.
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((fn) => window.setTimeout(fn, 2000));
+    const handle = idle(() => loadYouTubeApi());
+    return () => (window.cancelIdleCallback ?? window.clearTimeout)(handle);
   }, []);
 
   return (

@@ -52,9 +52,15 @@ free/cheap egress (e.g. Cloudflare R2 or Bunny) and put the full https URL in
 includes 100 GB/month of bandwidth; a few short portfolio MP4s are fine, many
 long ones are not.
 
-**Long shows (`previewSrc`)**: for full-length shows that stay on YouTube,
-the tile preview can still be self-hosted. Extract just the preview stamp
-into a small clip and set `previewSrc` (plus `poster`) on the entry, e.g.:
+**Caching rule**: `/videos/` and `/photography/` are served with a one-year
+immutable cache (vercel.json). If you ever REPLACE a file's content, rename
+it (e.g. `-v2`) and update the data — same-name replacements will look stale
+to returning visitors for up to a year.
+
+**Long shows (`previewSrc`)**: even when the theater uses a big self-hosted
+file (or YouTube), the tile preview should be a small dedicated clip — tiles
+that point at the big file stream tens of MB on scroll. Extract just the
+preview stamp and set `previewSrc` (plus `poster`) on the entry, e.g.:
 
 ```bash
 ffmpeg -ss 1953 -i master.mp4 -t 11 -an -c:v libx264 -crf 23 \

@@ -34,7 +34,16 @@ export default function Navbar() {
   const workLinkRef = useRef(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 32);
+    // Only touch React state when the boolean actually flips — this handler
+    // runs for every scroll event (~3,400 per full-page scroll).
+    let last = null;
+    const onScroll = () => {
+      const next = window.scrollY > 32;
+      if (next !== last) {
+        last = next;
+        setScrolled(next);
+      }
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);

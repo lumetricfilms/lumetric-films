@@ -17,8 +17,8 @@ const svg = `
       <stop offset="72%" stop-color="#67e8f9"/>
       <stop offset="100%" stop-color="#0891b2" stop-opacity="0"/>
     </radialGradient>
-    <filter id="og-glow" x="-90%" y="-90%" width="280%" height="280%" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="10" result="blur"/>
+    <filter id="og-glow" x="-120%" y="-120%" width="340%" height="340%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -44,7 +44,7 @@ const svg = `
   <g transform="translate(525 116) scale(0.293)">
     <rect x="76" y="52" width="360" height="408" rx="54" fill="none" stroke="#f5f5f5" stroke-width="9"/>
     <path d="M188 148h58v228h125v52H188V148Z" fill="#ffffff"/>
-    <circle cx="324" cy="190" r="46" fill="url(#og-orb)" filter="url(#og-glow)"/>
+    <circle cx="324" cy="190" r="54" fill="url(#og-orb)" filter="url(#og-glow)"/>
   </g>
 
   <text x="600" y="360" text-anchor="middle" fill="#ffffff"

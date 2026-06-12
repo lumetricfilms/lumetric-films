@@ -37,6 +37,10 @@ export default function NativePreview({ video, scrub = false, muted = true, susp
     setPlaying(false);
   }, []);
 
+  // play() can be interrupted by load/pause races during initial page settle;
+  // retry a few times while the preview is still wanted (reset on success).
+  const retryRef = useRef(0);
+
   const startPreview = useCallback(() => {
     if (prefersReducedMotion() || suspendedRef.current) return;
     wantPlayRef.current = true;
@@ -52,9 +56,31 @@ export default function NativePreview({ video, scrub = false, muted = true, susp
       }
     }
     el.play().catch(() => {
-      // autoplay rejected (e.g. data-saver); the poster simply stays
+      if (retryRef.current >= 3 || !wantPlayRef.current) return;
+      retryRef.current += 1;
+      window.setTimeout(() => {
+        if (wantPlayRef.current && !scrubbingRef.current) startPreview();
+      }, 350);
     });
   }, [start]);
+
+  // A pause we didn't ask for (load race, brief observer flicker) gets undone.
+  const handlePause = useCallback(() => {
+    setPlaying(false);
+    if (
+      !wantPlayRef.current ||
+      scrubbingRef.current ||
+      suspendedRef.current ||
+      !visibleWantRef.current
+    ) {
+      return;
+    }
+    window.requestAnimationFrame(() => {
+      if (wantPlayRef.current && !scrubbingRef.current && !suspendedRef.current) {
+        videoRef.current?.play().catch(() => {});
+      }
+    });
+  }, []);
 
   // Mount the element when near the viewport (250px margin), like the YT path.
   useEffect(() => {
@@ -197,7 +223,11 @@ export default function NativePreview({ video, scrub = false, muted = true, susp
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}
           onLoadedMetadata={handleLoadedMetadata}
-          onPlaying={() => setPlaying(true)}
+          onPause={handlePause}
+          onPlaying={() => {
+            retryRef.current = 0;
+            setPlaying(true);
+          }}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
             playing ? 'opacity-100' : 'opacity-0'
           }`}

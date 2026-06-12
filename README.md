@@ -51,6 +51,15 @@ free/cheap egress (e.g. Cloudflare R2 or Bunny) and put the full https URL in
 `src` — the site treats it exactly the same. Also note Vercel's free tier
 includes 100 GB/month of bandwidth; a few short portfolio MP4s are fine, many
 long ones are not.
+
+**Long shows (`previewSrc`)**: for full-length shows that stay on YouTube,
+the tile preview can still be self-hosted. Extract just the preview stamp
+into a small clip and set `previewSrc` (plus `poster`) on the entry, e.g.:
+
+```bash
+ffmpeg -ss 1953 -i master.mp4 -t 11 -an -c:v libx264 -crf 23 \
+  -vf "scale=1920:-2" -movflags +faststart public/videos/<id>-preview.mp4
+```
 - **Pricing**: `src/data/pricing.js`. All video and photography packages, the
   add-ons, and the tab labels of the unified Pricing section.
 - **Photography**: `src/data/projects.js` plus the JPGs in `public/photography/`.

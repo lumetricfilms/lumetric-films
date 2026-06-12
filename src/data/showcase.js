@@ -9,6 +9,9 @@
 //        named after the entry's id) or any absolute https URL for files too
 //        large for the repo. Poster image defaults to the same path with a
 //        .jpg extension (generate with: node scripts/make-posters.mjs).
+//   previewSrc: small self-hosted clip of just the start..end stamp, for
+//        shows too long to host in the repo — the tile preview plays this
+//        natively while the theater click still uses youTubeId.
 //   youTubeId: YouTube fallback used until an MP4 is provided.
 
 export const showcaseSections = [
@@ -24,6 +27,8 @@ export const showcaseSections = [
         id: 'bda-winter-show',
         title: 'Bronx Dance Academy Winter Show',
         youTubeId: '5DKvqLB0xac',
+        previewSrc: '/videos/bda-winter-show-preview.mp4',
+        poster: '/videos/bda-winter-show.jpg',
         start: 1953,
         end: 1964,
         layout: 'full',
@@ -34,6 +39,8 @@ export const showcaseSections = [
         id: 'mmcc-bda-show',
         title: 'Afterschool Showcase · Bronx Dance Academy at MMCC',
         youTubeId: 'Hgbmk5nZAcI',
+        previewSrc: '/videos/mmcc-bda-show-preview.mp4',
+        poster: '/videos/mmcc-bda-show.jpg',
         start: 2003,
         end: 2011,
         layout: 'half',
@@ -44,6 +51,8 @@ export const showcaseSections = [
         id: 'roots-of-resilience',
         title: 'Roots of Resilience · Bronx Dance Academy × P.S. 41',
         youTubeId: 's5fXuhxh-0c',
+        previewSrc: '/videos/roots-of-resilience-preview.mp4',
+        poster: '/videos/roots-of-resilience.jpg',
         start: 2534,
         end: 2546,
         layout: 'half',

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import About from './components/About.jsx';
 import Clients from './components/Clients.jsx';
@@ -17,6 +18,16 @@ import VideoShowcase from './components/VideoShowcase.jsx';
 // Page flow: all the work first (video, then stills), then services, one
 // unified pricing section, the people, and the close.
 export default function App() {
+  // The browser's own anchor scroll fires before React has rendered the
+  // sections, so shared links like /#pricing land at the top. Re-run the
+  // jump once the sections exist (#play- hashes are the lightbox's).
+  useEffect(() => {
+    const { hash } = window.location;
+    if (!hash || hash.startsWith('#play-')) return;
+    const el = document.getElementById(hash.slice(1));
+    if (el) window.requestAnimationFrame(() => el.scrollIntoView());
+  }, []);
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-zinc-950 text-white">
       <ScrollProgress />

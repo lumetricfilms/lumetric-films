@@ -1,7 +1,7 @@
 import { showcaseSections } from '../data/showcase.js';
 import { isSelfHosted, posterFor, watchUrl } from '../lib/video.js';
 
-const SITE = 'https://lumetric-films.vercel.app';
+const SITE = 'https://lumetricfilms.com';
 
 const absolute = (path) => (path.startsWith('http') ? path : `${SITE}${path}`);
 

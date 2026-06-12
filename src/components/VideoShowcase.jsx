@@ -117,7 +117,7 @@ function FullScreenVideo({ video, section, showTitle, number, onOpen, suspended 
         aria-label={`Play ${video.title}`}
         className="group block h-full w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
       >
-        <LivePreviewPlayer video={video} cover scrub suspended={suspended} />
+        <LivePreviewPlayer video={video} cover suspended={suspended} />
         <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/55" />
         <VideoCaption video={video} />
       </button>
@@ -137,7 +137,7 @@ function TwoColumnVideo({ video, section, onOpen, suspended }) {
       className="group relative block aspect-video w-full overflow-hidden bg-black text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
     >
       <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
-        <LivePreviewPlayer video={video} scrub suspended={suspended} />
+        <LivePreviewPlayer video={video} suspended={suspended} />
       </div>
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
       <VideoCaption video={video} />

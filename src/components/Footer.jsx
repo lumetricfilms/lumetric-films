@@ -1,4 +1,4 @@
-import logoIcon from '../assets/lumetric-icon.svg';
+import logoIcon from '../assets/lumetric-icon.png';
 
 const links = [
   { label: 'Work', href: '#work' },

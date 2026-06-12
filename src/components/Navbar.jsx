@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import { showcaseSections } from '../data/showcase.js';
 import useFocusTrap from '../lib/useFocusTrap.js';
-import logoIcon from '../assets/lumetric-icon.svg';
+import logoIcon from '../assets/lumetric-icon.png';
 
 const navItems = [
   { label: 'Work', href: '#work' },

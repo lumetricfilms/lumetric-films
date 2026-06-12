@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion } from '../lib/media.js';
-import logoIcon from '../assets/lumetric-icon.svg';
+import logoIcon from '../assets/lumetric-icon.png';
 import Wordmark from './Wordmark.jsx';
 
 // Play the flicker entrance once per tab session; instant on return visits.
@@ -139,7 +139,7 @@ export default function Hero() {
           <img
             src={logoIcon}
             alt=""
-            className={`mb-8 h-20 w-20 rounded-xl border border-white/10 shadow-[0_0_40px_rgba(34,211,238,.28)] sm:h-24 sm:w-24 ${rise}`}
+            className={`mb-8 h-20 w-20 drop-shadow-[0_0_40px_rgba(34,211,238,.28)] sm:h-24 sm:w-24 ${rise}`}
             aria-hidden="true"
           />
           <p className={`mb-6 text-sm font-semibold uppercase tracking-[0.34em] text-cyan-200 ${rise}`}>

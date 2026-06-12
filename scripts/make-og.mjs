@@ -1,7 +1,10 @@
 // Generates public/og.png (1200x630), the social share preview image.
 // Run with: node scripts/make-og.mjs
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { Resvg } from '@resvg/resvg-js';
+
+// Embed the real logo (same master as the favicons) onto the card.
+const logoUri = `data:image/png;base64,${readFileSync('src/assets/lumetric-icon.png').toString('base64')}`;
 
 const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -11,19 +14,6 @@ const svg = `
       <stop offset="45%" stop-color="#0891b2" stop-opacity="0.12"/>
       <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="og-orb" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="48%" stop-color="#ffffff"/>
-      <stop offset="72%" stop-color="#67e8f9"/>
-      <stop offset="100%" stop-color="#0891b2" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="og-glow" x="-120%" y="-120%" width="340%" height="340%" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="12" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
   </defs>
 
   <rect width="1200" height="630" fill="#09090b"/>
@@ -41,11 +31,7 @@ const svg = `
     <path d="M1130 560 h-54 M1130 560 v-54"/>
   </g>
 
-  <g transform="translate(525 116) scale(0.293)">
-    <rect x="76" y="52" width="360" height="408" rx="54" fill="none" stroke="#f5f5f5" stroke-width="9"/>
-    <path d="M188 148h58v228h125v52H188V148Z" fill="#ffffff"/>
-    <circle cx="324" cy="190" r="54" fill="url(#og-orb)" filter="url(#og-glow)"/>
-  </g>
+  <image href="${logoUri}" x="525" y="96" width="150" height="150" preserveAspectRatio="xMidYMid meet"/>
 
   <text x="600" y="360" text-anchor="middle" fill="#ffffff"
         font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="900" letter-spacing="6">LUMETRIC FILMS</text>

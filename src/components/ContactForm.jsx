@@ -1,18 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Send } from 'lucide-react';
 
-// To deliver inquiries straight to the inbox, paste a free Web3Forms access key
-// here (get one in 2 minutes at https://web3forms.com using lumetricfilms@gmail.com).
-// Until a key is set, the form falls back to opening the visitor's email app
-// pre-filled, and shows on-page confirmation either way.
+// Inquiries deliver straight to the inbox via Web3Forms (key registered to
+// lumetricfilms@gmail.com at https://web3forms.com).
 const ACCESS_KEY = 'c3ddba5b-1695-4d74-a6f0-0b97140a1e7f';
 
 const inputClass =
-  'w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-zinc-500 transition focus:border-cyan-200/50 focus:outline-none focus:ring-1 focus:ring-cyan-200/40';
+  'w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-zinc-400 transition focus:border-cyan-200/50 focus:outline-none focus:ring-1 focus:ring-cyan-200/40';
 
 export default function ContactForm() {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const successRef = useRef(null);
+
+  // Move focus to the confirmation so the outcome is announced and the
+  // keyboard isn't dropped on <body> when the form unmounts.
+  useEffect(() => {
+    if (status === 'success') successRef.current?.focus();
+  }, [status]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -21,14 +26,6 @@ export default function ContactForm() {
     const name = String(data.get('name') || '').trim();
     const email = String(data.get('email') || '').trim();
     const message = String(data.get('message') || '').trim();
-
-    if (!ACCESS_KEY) {
-      const subject = encodeURIComponent(`Project inquiry from ${name || 'the website'}`);
-      const body = encodeURIComponent(`${message}\n\nFrom: ${name}\nEmail: ${email}`);
-      window.location.href = `mailto:lumetricfilms@gmail.com?subject=${subject}&body=${body}`;
-      setStatus('drafted');
-      return;
-    }
 
     setStatus('sending');
     setError('');
@@ -52,24 +49,25 @@ export default function ContactForm() {
         form.reset();
       } else {
         setStatus('error');
-        setError(result.message || 'Something went wrong. Please email us directly.');
+        setError(result.message || 'Something went wrong.');
       }
     } catch {
       setStatus('error');
-      setError('Network error. Please email us directly.');
+      setError('Network error.');
     }
   };
 
-  if (status === 'success' || status === 'drafted') {
+  if (status === 'success') {
     return (
-      <div className="rounded-lg border border-cyan-200/30 bg-cyan-300/[0.05] p-6 text-center">
-        <p className="text-lg font-semibold text-white">
-          {status === 'success' ? 'Thank you' : 'Almost there'}
-        </p>
+      <div
+        ref={successRef}
+        role="status"
+        tabIndex={-1}
+        className="rounded-lg border border-cyan-200/30 bg-cyan-300/[0.05] p-6 text-center focus:outline-none"
+      >
+        <p className="text-lg font-semibold text-white">Thank you</p>
         <p className="mt-2 text-sm leading-6 text-zinc-300">
-          {status === 'success'
-            ? 'Your message is on its way. We will get back to you soon.'
-            : 'We opened a draft in your email app. If nothing happened, email us directly at lumetricfilms@gmail.com.'}
+          Your message is on its way. We will get back to you soon.
         </p>
       </div>
     );
@@ -139,7 +137,13 @@ export default function ContactForm() {
         {status === 'sending' ? 'Sending...' : 'Send inquiry'}
       </button>
       {status === 'error' ? (
-        <p className="text-sm text-red-300">{error}</p>
+        <p role="alert" className="text-sm text-red-300">
+          {error}{' '}
+          <a href="mailto:lumetricfilms@gmail.com" className="font-semibold text-cyan-200 underline">
+            Email us directly
+          </a>{' '}
+          instead.
+        </p>
       ) : null}
     </form>
   );

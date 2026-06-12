@@ -1,11 +1,26 @@
 import { useEffect, useState } from 'react';
+import { prefersReducedMotion } from '../lib/media.js';
 import logoIcon from '../assets/lumetric-icon.svg';
 import Wordmark from './Wordmark.jsx';
 
-const prefersReducedMotion =
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Play the flicker entrance once per tab session; instant on return visits.
+const INTRO_SEEN_KEY = 'lf-intro-seen';
+
+function introAlreadySeen() {
+  try {
+    return window.sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markIntroSeen() {
+  try {
+    window.sessionStorage.setItem(INTRO_SEEN_KEY, '1');
+  } catch {
+    // private mode; the intro just replays
+  }
+}
 
 // Glow spots that fade in, drift, and fade out one at a time, mixing cyan,
 // green, and red at varied sizes.
@@ -21,24 +36,29 @@ const spots = [
 ];
 const SPOT_CYCLE = spots.length * SPOT_INTERVAL;
 
-// Entrance timeline: the dot flickers (ends ~0.2s delay + 2.8s = 3.0s), then
-// the "i" stem fades in slowly, then everything else appears.
-const STEM_DELAY_MS = 3000;
-const REVEAL_DELAY_MS = 3800;
+// Entrance timeline: the dot flickers (ends ~0.1s delay + 1s = 1.1s), the "i"
+// stem fades in just behind it, then everything else appears. Kept tight so
+// the headline and CTAs exist within ~1.3s of first paint.
+const STEM_DELAY_MS = 1000;
+const REVEAL_DELAY_MS = 1300;
 
 export default function Hero() {
-  const [stemIn, setStemIn] = useState(prefersReducedMotion);
-  const [entered, setEntered] = useState(prefersReducedMotion);
+  const [skipIntro] = useState(() => prefersReducedMotion() || introAlreadySeen());
+  const [stemIn, setStemIn] = useState(skipIntro);
+  const [entered, setEntered] = useState(skipIntro);
 
   useEffect(() => {
-    if (prefersReducedMotion) return undefined;
+    if (skipIntro) return undefined;
     const stemTimer = window.setTimeout(() => setStemIn(true), STEM_DELAY_MS);
-    const revealTimer = window.setTimeout(() => setEntered(true), REVEAL_DELAY_MS);
+    const revealTimer = window.setTimeout(() => {
+      setEntered(true);
+      markIntroSeen();
+    }, REVEAL_DELAY_MS);
     return () => {
       window.clearTimeout(stemTimer);
       window.clearTimeout(revealTimer);
     };
-  }, []);
+  }, [skipIntro]);
 
   const rise = `transition-all duration-700 ease-out ${
     entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -50,7 +70,7 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 px-5 pt-28 sm:px-8"
+      className="relative flex min-h-svh items-center justify-center overflow-hidden bg-zinc-950 px-5 pt-28 sm:px-8"
     >
       {/* Decorative background, revealed after the flicker. */}
       <div className={`absolute inset-0 ${fade}`} aria-hidden="true">
@@ -112,12 +132,11 @@ export default function Hero() {
             className={`mt-8 max-w-2xl text-xl leading-8 text-zinc-300 sm:text-2xl sm:leading-9 ${rise}`}
             style={{ transitionDelay: entered ? '120ms' : '0ms' }}
           >
-            Cinematic video and photography for artists, brands, and unforgettable moments.
+            Music videos, live shows, and brand films with a cinematic eye — shot, cut,
+            and colored in the Bronx, NYC.
           </p>
           <div
-            className={`mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row ${rise} ${
-              entered ? '' : 'pointer-events-none'
-            }`}
+            className={`mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row ${rise}`}
             style={{ transitionDelay: entered ? '220ms' : '0ms' }}
           >
             <a

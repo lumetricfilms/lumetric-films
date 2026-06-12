@@ -53,7 +53,7 @@ const svg = `
   <rect x="540" y="388" width="120" height="3" rx="1.5" fill="#67e8f9"/>
 
   <text x="600" y="452" text-anchor="middle" fill="#d4d4d8"
-        font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="500">Cinematic video and photography for artists, brands, and moments</text>
+        font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="500">Cinematic video and photography, made in the Bronx, NYC</text>
 
   <text x="600" y="560" text-anchor="middle" fill="#67e8f9"
         font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="6">VIDEO  ·  PHOTOGRAPHY  ·  EDITING</text>

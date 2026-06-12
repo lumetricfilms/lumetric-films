@@ -8,12 +8,14 @@ import Footer from './components/Footer.jsx';
 import Hero from './components/Hero.jsx';
 import Navbar from './components/Navbar.jsx';
 import PhotographyGallery from './components/PhotographyGallery.jsx';
-import PhotographyPricing from './components/PhotographyPricing.jsx';
 import Pricing from './components/Pricing.jsx';
 import ScrollProgress from './components/ScrollProgress.jsx';
+import SeoVideoSchema from './components/SeoVideoSchema.jsx';
 import Services from './components/Services.jsx';
 import VideoShowcase from './components/VideoShowcase.jsx';
 
+// Page flow: all the work first (video, then stills), then services, one
+// unified pricing section, the people, and the close.
 export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-zinc-950 text-white">
@@ -23,10 +25,9 @@ export default function App() {
         <Hero />
         <VideoShowcase />
         <Clients />
+        <PhotographyGallery />
         <Services />
         <Pricing />
-        <PhotographyGallery />
-        <PhotographyPricing />
         <About />
         <ClosingCTA />
         <Contact />
@@ -34,6 +35,7 @@ export default function App() {
       <Footer />
       <div className="grain-overlay" aria-hidden="true" />
       <CursorGlow />
+      <SeoVideoSchema />
       <Analytics />
     </div>
   );

@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Play, X } from 'lucide-react';
+import { ExternalLink, Pause, Play, Volume2, VolumeX, X } from 'lucide-react';
 import { loadYouTubeApi, thumbnailUrl } from '../lib/youtube.js';
-
-// Note: the cross origin player iframe is intentionally excluded (and given
-// tabindex -1) so it cannot become an un-trappable tab boundary.
-const FOCUSABLE =
-  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+import useFocusTrap from '../lib/useFocusTrap.js';
 
 // Theater style modal: a large player with a strip of every video in the same
 // category below it. Picking a thumbnail swaps the player; when a video ends it
@@ -23,6 +19,10 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
   const playerReadyRef = useRef(false);
 
   const [swapping, setSwapping] = useState(false);
+  // 'loading' | 'ready' | 'unavailable' (YouTube API blocked or failed)
+  const [playerState, setPlayerState] = useState('loading');
+  const [paused, setPaused] = useState(false);
+  const [muted, setMuted] = useState(false);
 
   // Keep the latest props available to the keyboard handler and player callbacks.
   const latest = useRef({ video, section, onSelect });
@@ -30,61 +30,32 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
     latest.current = { video, section, onSelect };
   });
 
-  // Focus management + scroll lock for the whole modal session.
+  useFocusTrap({
+    active: isOpen,
+    containerRef: dialogRef,
+    initialFocusRef: closeButtonRef,
+    onClose,
+  });
+
+  // Arrow keys move through the category playlist.
   useEffect(() => {
     if (!isOpen) return undefined;
-
-    const previouslyFocused = document.activeElement;
-    closeButtonRef.current?.focus();
-
     const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        onClose();
-        return;
-      }
-      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-        const { video: current, section: group, onSelect: select } = latest.current;
-        const list = group?.videos ?? [];
-        const index = list.findIndex((item) => item.youTubeId === current?.youTubeId);
-        if (index >= 0) {
-          const target = event.key === 'ArrowRight' ? index + 1 : index - 1;
-          if (target >= 0 && target < list.length) {
-            event.preventDefault();
-            select(list[target]);
-          }
+      if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+      const { video: current, section: group, onSelect: select } = latest.current;
+      const list = group?.videos ?? [];
+      const index = list.findIndex((item) => item.youTubeId === current?.youTubeId);
+      if (index >= 0) {
+        const target = event.key === 'ArrowRight' ? index + 1 : index - 1;
+        if (target >= 0 && target < list.length) {
+          event.preventDefault();
+          select(list[target]);
         }
-        return;
-      }
-      if (event.key !== 'Tab' || !dialogRef.current) return;
-
-      const items = Array.from(
-        dialogRef.current.querySelectorAll(FOCUSABLE),
-      ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
-      if (items.length === 0) return;
-
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
       }
     };
-
     document.addEventListener('keydown', onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = previousOverflow;
-      if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
-        previouslyFocused.focus();
-      }
-    };
-  }, [isOpen, onClose]);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isOpen]);
 
   // Create the player once per open session. Switching videos swaps the source
   // in place (see the next effect) instead of rebuilding the iframe.
@@ -95,9 +66,17 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
 
     let cancelled = false;
     playerReadyRef.current = false;
+    setPlayerState('loading');
+    setPaused(false);
+    setMuted(false);
 
     loadYouTubeApi().then((YT) => {
-      if (cancelled || !YT || !playerContainerRef.current) return;
+      if (cancelled || !playerContainerRef.current) return;
+      if (!YT) {
+        // API blocked or failed: show a fallback so the click still converts.
+        setPlayerState('unavailable');
+        return;
+      }
       const host = document.createElement('div');
       host.style.width = '100%';
       host.style.height = '100%';
@@ -127,6 +106,7 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
         events: {
           onReady: () => {
             playerReadyRef.current = true;
+            setPlayerState('ready');
             playerContainerRef.current
               ?.querySelector('iframe')
               ?.setAttribute('tabindex', '-1');
@@ -140,7 +120,11 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
             }
           },
           onStateChange: (event) => {
-            if (event.data !== window.YT?.PlayerState?.ENDED) return;
+            const state = window.YT?.PlayerState;
+            if (!state) return;
+            if (event.data === state.PLAYING) setPaused(false);
+            else if (event.data === state.PAUSED) setPaused(true);
+            if (event.data !== state.ENDED) return;
             advanceToNext();
           },
           onError: () => {
@@ -149,6 +133,11 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
           },
         },
       });
+      // The API inserts the iframe synchronously; pull it out of the tab
+      // order right away (onReady repeats this as a backstop).
+      playerContainerRef.current
+        ?.querySelector('iframe')
+        ?.setAttribute('tabindex', '-1');
     });
 
     return () => {
@@ -205,6 +194,33 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
 
   const playlist = section?.videos ?? [video];
 
+  // Keyboard-reachable transport controls; the cross origin iframe itself is
+  // excluded from the tab order so it cannot break the focus trap.
+  const togglePause = () => {
+    const player = playerRef.current;
+    if (!player) return;
+    try {
+      if (paused) player.playVideo();
+      else player.pauseVideo();
+    } catch {
+      // ignore
+    }
+  };
+  const toggleMute = () => {
+    const player = playerRef.current;
+    if (!player) return;
+    try {
+      if (muted) player.unMute();
+      else player.mute();
+      setMuted(!muted);
+    } catch {
+      // ignore
+    }
+  };
+
+  const controlClass =
+    'inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur transition hover:border-cyan-200 hover:bg-cyan-300/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300';
+
   return (
     <div
       ref={backdropRef}
@@ -220,23 +236,75 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
           className="relative w-full max-w-6xl"
           onClick={(event) => event.stopPropagation()}
         >
-          <button
-            ref={closeButtonRef}
-            type="button"
-            onClick={onClose}
-            aria-label="Close video"
-            className="absolute right-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur transition hover:border-cyan-200 hover:bg-cyan-300/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
-          >
-            <X className="h-5 w-5" aria-hidden="true" />
-          </button>
+          <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
+            {playerState === 'ready' ? (
+              <>
+                <button
+                  type="button"
+                  onClick={togglePause}
+                  aria-label={paused ? 'Play video' : 'Pause video'}
+                  className={controlClass}
+                >
+                  {paused ? (
+                    <Play className="ml-0.5 h-5 w-5" fill="currentColor" aria-hidden="true" />
+                  ) : (
+                    <Pause className="h-5 w-5" aria-hidden="true" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  aria-label={muted ? 'Unmute video' : 'Mute video'}
+                  className={controlClass}
+                >
+                  {muted ? (
+                    <VolumeX className="h-5 w-5" aria-hidden="true" />
+                  ) : (
+                    <Volume2 className="h-5 w-5" aria-hidden="true" />
+                  )}
+                </button>
+              </>
+            ) : null}
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Close video"
+              className={controlClass}
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
 
           <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl shadow-cyan-950/30">
-            <div
-              ref={playerContainerRef}
-              className={`lightbox-player absolute inset-0 transition-opacity duration-300 ${
-                swapping ? 'opacity-0' : 'opacity-100'
-              }`}
-            />
+            {playerState === 'unavailable' ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
+                <img
+                  src={thumbnailUrl(video.youTubeId, 'hqdefault')}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover opacity-30"
+                />
+                <p className="relative text-base font-medium text-white">
+                  The player could not load on this connection.
+                </p>
+                <a
+                  href={`https://www.youtube.com/watch?v=${video.youTubeId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative inline-flex items-center gap-2 rounded-full bg-cyan-200 px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-white"
+                >
+                  Watch on YouTube
+                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </div>
+            ) : (
+              <div
+                ref={playerContainerRef}
+                className={`lightbox-player absolute inset-0 transition-opacity duration-300 ${
+                  swapping ? 'opacity-0' : 'opacity-100'
+                }`}
+              />
+            )}
           </div>
 
           <div className="mt-5 flex flex-wrap items-baseline justify-between gap-3">
@@ -251,7 +319,7 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
               ) : null}
             </div>
             {section?.eyebrow ? (
-              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
+              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
                 {section.eyebrow}
               </span>
             ) : null}

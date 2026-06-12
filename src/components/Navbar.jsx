@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import { showcaseSections } from '../data/showcase.js';
+import useFocusTrap from '../lib/useFocusTrap.js';
 import logoIcon from '../assets/lumetric-icon.svg';
-import wordmarkLogo from '../assets/lumetric-wordmark.svg';
-
-const FOCUSABLE =
-  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 const navItems = [
   { label: 'Work', href: '#work' },
+  { label: 'Photography', href: '#photography' },
   { label: 'Services', href: '#services' },
   { label: 'Pricing', href: '#pricing' },
   { label: 'About', href: '#about' },
   { label: 'Contact', href: '#contact' },
 ];
 
-const categories = showcaseSections.map((section) => ({
+const videoCategories = showcaseSections.map((section) => ({
   label: section.eyebrow,
   href: `#${section.id}`,
 }));
+
+// The desktop Work dropdown also offers Photography; the mobile drawer already
+// lists Photography as a main item, so its category list stays video-only.
+const dropdownCategories = [...videoCategories, { label: 'Photography', href: '#photography' }];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -28,7 +31,7 @@ export default function Navbar() {
   const menuRef = useRef(null);
   const closeRef = useRef(null);
   const workRef = useRef(null);
-  const workBtnRef = useRef(null);
+  const workLinkRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 32);
@@ -47,64 +50,25 @@ export default function Navbar() {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Mobile drawer: lock scroll, move focus in, trap Tab, restore focus, Escape.
-  useEffect(() => {
-    if (!open) return undefined;
+  useFocusTrap({
+    active: open,
+    containerRef: menuRef,
+    initialFocusRef: closeRef,
+    onClose: () => setOpen(false),
+  });
 
-    const opener = document.activeElement;
-    closeRef.current?.focus();
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setOpen(false);
-        return;
-      }
-      if (event.key !== 'Tab' || !menuRef.current) return;
-      const items = Array.from(menuRef.current.querySelectorAll(FOCUSABLE)).filter(
-        (el) => !el.hasAttribute('disabled') && el.offsetParent !== null,
-      );
-      if (items.length === 0) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
-      if (opener && typeof opener.focus === 'function') opener.focus();
-    };
-  }, [open]);
-
-  // Desktop Work dropdown: close on outside click and on Escape.
+  // Work dropdown opens on hover/focus; "Work" itself is a plain link, so a
+  // click or tap always navigates instead of fighting the hover-open state.
   useEffect(() => {
     if (!workOpen) return undefined;
-    const onPointerDown = (event) => {
-      if (workRef.current && !workRef.current.contains(event.target)) {
-        setWorkOpen(false);
-      }
-    };
     const onKeyDown = (event) => {
       if (event.key === 'Escape') {
         setWorkOpen(false);
-        workBtnRef.current?.focus();
+        workLinkRef.current?.focus();
       }
     };
-    document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [workOpen]);
 
   return (
@@ -127,27 +91,32 @@ export default function Navbar() {
             className="h-10 w-10 rounded-md transition duration-300 group-hover:scale-105"
             aria-hidden="true"
           />
-          <img
-            src={wordmarkLogo}
-            alt="Lumetric Films"
-            className="h-9 w-36 object-contain object-left sm:h-10 sm:w-44"
-          />
+          <span className="flex items-baseline gap-2 font-['Space_Grotesk',Inter,sans-serif]">
+            <span className="text-lg font-bold tracking-wide text-white">Lumetric</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.32em] text-cyan-200">
+              Films
+            </span>
+          </span>
         </a>
 
-        <div className="hidden items-center gap-9 md:flex">
+        <div className="hidden items-center gap-8 md:flex">
           <div
             ref={workRef}
             className="relative"
             onMouseEnter={() => setWorkOpen(true)}
             onMouseLeave={() => setWorkOpen(false)}
+            onFocus={() => setWorkOpen(true)}
+            onBlur={(event) => {
+              if (!workRef.current?.contains(event.relatedTarget)) setWorkOpen(false);
+            }}
           >
-            <button
-              ref={workBtnRef}
-              type="button"
-              aria-haspopup="true"
+            <a
+              ref={workLinkRef}
+              href="#work"
               aria-expanded={workOpen}
-              onClick={() => setWorkOpen((value) => !value)}
-              className="inline-flex items-center gap-1 text-base font-medium tracking-wide text-zinc-200 transition hover:text-white lg:text-lg"
+              aria-haspopup="true"
+              aria-controls="work-dropdown"
+              className="inline-flex items-center gap-1 text-base font-medium tracking-wide text-zinc-200 transition hover:text-white"
             >
               Work
               <ChevronDown
@@ -156,7 +125,7 @@ export default function Navbar() {
                 }`}
                 aria-hidden="true"
               />
-            </button>
+            </a>
             <div
               className={`absolute left-1/2 top-full z-50 w-56 -translate-x-1/2 pt-3 transition duration-200 ${
                 workOpen
@@ -164,23 +133,14 @@ export default function Navbar() {
                   : 'invisible translate-y-1 opacity-0'
               }`}
             >
-              <div
-                role="menu"
+              <nav
+                id="work-dropdown"
                 aria-label="Work categories"
                 className="rounded-lg border border-white/10 bg-zinc-900/95 p-2 shadow-2xl shadow-black/50 backdrop-blur-xl"
               >
-                <a
-                  role="menuitem"
-                  href="#work"
-                  onClick={() => setWorkOpen(false)}
-                  className="block rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-300/10 hover:text-cyan-100"
-                >
-                  All Work
-                </a>
-                {categories.map((category) => (
+                {dropdownCategories.map((category) => (
                   <a
                     key={category.href}
-                    role="menuitem"
                     href={category.href}
                     onClick={() => setWorkOpen(false)}
                     className="block rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-300/10 hover:text-cyan-100"
@@ -188,14 +148,14 @@ export default function Navbar() {
                     {category.label}
                   </a>
                 ))}
-              </div>
+              </nav>
             </div>
           </div>
           {navItems.slice(1).map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="relative text-base font-medium tracking-wide text-zinc-200 transition hover:text-white after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-cyan-200 after:shadow-[0_0_8px_rgba(34,211,238,.7)] after:transition-transform after:duration-300 hover:after:scale-x-100 lg:text-lg"
+              className="relative text-base font-medium tracking-wide text-zinc-200 transition hover:text-white after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-cyan-200 after:shadow-[0_0_8px_rgba(34,211,238,.7)] after:transition-transform after:duration-300 hover:after:scale-x-100"
             >
               {item.label}
             </a>
@@ -204,7 +164,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           <a
-            href="mailto:lumetricfilms@gmail.com"
+            href="#contact"
             className="hidden rounded-full border border-cyan-300/40 px-5 py-2.5 text-sm font-semibold tracking-wide text-cyan-100 transition hover:border-cyan-200 hover:bg-cyan-300/10 sm:inline-flex sm:text-base"
           >
             Book
@@ -214,15 +174,18 @@ export default function Navbar() {
             onClick={() => setOpen(true)}
             aria-label="Open menu"
             aria-expanded={open}
-            aria-controls="mobile-menu"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-white transition hover:bg-white/10 md:hidden"
+            aria-controls={open ? 'mobile-menu' : undefined}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-white transition hover:bg-white/10 md:hidden"
           >
             <Menu className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
       </nav>
 
+      {/* Portaled to <body>: the blurred header is a containing block for
+          fixed-position descendants, which would trap the drawer inside it. */}
       {open ? (
+        createPortal(
         <div
           id="mobile-menu"
           className="fixed inset-0 z-50 md:hidden"
@@ -247,7 +210,7 @@ export default function Navbar() {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md text-white transition hover:bg-white/10"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-white transition hover:bg-white/10"
               >
                 <X className="h-6 w-6" aria-hidden="true" />
               </button>
@@ -266,16 +229,16 @@ export default function Navbar() {
               ))}
             </nav>
 
-            <p className="mb-2 mt-8 text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
+            <p className="mb-2 mt-8 text-xs font-semibold uppercase tracking-[0.3em] text-zinc-400">
               Categories
             </p>
             <nav className="flex flex-col">
-              {categories.map((category) => (
+              {videoCategories.map((category) => (
                 <a
                   key={category.href}
                   href={category.href}
                   onClick={() => setOpen(false)}
-                  className="py-2 text-sm text-zinc-300 transition hover:text-cyan-200"
+                  className="py-3 text-sm text-zinc-300 transition hover:text-cyan-200"
                 >
                   {category.label}
                 </a>
@@ -283,14 +246,16 @@ export default function Navbar() {
             </nav>
 
             <a
-              href="mailto:lumetricfilms@gmail.com"
+              href="#contact"
               onClick={() => setOpen(false)}
               className="mt-8 inline-flex items-center justify-center rounded-full bg-cyan-200 px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-white"
             >
               Book a Project
             </a>
           </div>
-        </div>
+        </div>,
+        document.body,
+        )
       ) : null}
     </header>
   );

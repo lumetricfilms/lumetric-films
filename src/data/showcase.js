@@ -1,10 +1,5 @@
 // Live preview portfolio data.
 //
-// NOTE (placeholder build): the source video list did not include category or
-// layout columns, so the groupings below and the per video layout were assigned
-// here as sensible defaults. The section and caption copy is sample text for
-// layout preview. Everything is meant to be edited freely.
-//
 //   layout: 'full' renders a full width feature tile.
 //   layout: 'half' renders a two column tile (pairs sit side by side).
 //   start / end are in seconds and define the silent looping preview segment.
@@ -32,22 +27,22 @@ export const showcaseSections = [
       },
       {
         id: 'mmcc-bda-show',
-        title: 'May 2026 MMCC Afterschool BDA Show',
+        title: 'Afterschool Showcase · Bronx Dance Academy at MMCC',
         youTubeId: 'Hgbmk5nZAcI',
         start: 2003,
         end: 2011,
         layout: 'half',
-        role: 'Filmed and edited by Lumetric Films',
+        role: 'Filmed and edited by Lumetric Films · 2026',
         blurb: 'Highlights from the MMCC afterschool BDA showcase.',
       },
       {
         id: 'roots-of-resilience',
-        title: 'Roots of Resilience BDA / P.S. 41 MMCC 2026 Show',
+        title: 'Roots of Resilience · Bronx Dance Academy × P.S. 41',
         youTubeId: 's5fXuhxh-0c',
         start: 2534,
         end: 2546,
         layout: 'half',
-        role: 'Filmed and edited by Lumetric Films',
+        role: 'Filmed and edited by Lumetric Films · 2026',
         blurb: 'Roots of Resilience, the 2026 BDA and P.S. 41 MMCC show.',
       },
     ],
@@ -86,29 +81,29 @@ export const showcaseSections = [
     id: 'commercial-brand',
     accent: '#fcd34d',
     eyebrow: 'Commercial & Brand',
-    title: 'High end creative for brands and submissions.',
+    title: 'Brand films built to read premium in the first three seconds.',
     blurb:
-      'Polished brand pieces and competition submissions, crafted to read as premium in the first few seconds and hold attention all the way through.',
+      'Polished brand pieces and competition films, crafted to read as premium in the first few seconds and hold attention all the way through.',
     videos: [
       {
         id: 'gensler-submission',
-        title: 'Gensler Jaydin Parker Submission',
+        title: 'Gensler Design Competition · Jaydin Parker',
         youTubeId: 'QjvDxbtBqWs',
         start: 90,
         end: 94,
         layout: 'half',
         role: 'Directed and edited by Lumetric Films',
-        blurb: 'Selected frames from the Gensler submission.',
+        blurb: 'Selected frames from the Gensler competition film.',
       },
       {
         id: 'urban-health-practice',
-        title: 'Urban Health Practice Edit',
+        title: 'Urban Health · Spec Brand Film',
         youTubeId: 'v_3F1Z4T_L8',
         start: 0,
         end: 8,
         layout: 'half',
-        role: 'Edited by Lumetric Films',
-        blurb: 'A practice brand edit for Urban Health.',
+        role: 'Spec edit by Lumetric Films',
+        blurb: 'A spec brand edit for Urban Health.',
       },
     ],
   },

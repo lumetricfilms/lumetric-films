@@ -68,8 +68,8 @@ h3 {
   transform: translate(-50%, -50%);
   width: 100vw;
   height: 56.25vw;
-  min-width: 177.7778vh;
-  min-height: 100vh;
+  min-width: 177.7778svh;
+  min-height: 100svh;
   pointer-events: none;
 }
 
@@ -205,7 +205,8 @@ h3 {
 }
 
 /* The dot of the "i" flickers like a lightbulb powering on: fast and violent
-   at first, then settling. Intervals are intentionally uneven. */
+   at first, then settling. Intervals are intentionally uneven. Kept short —
+   the rest of the hero reveals right behind it, so CTAs are clickable fast. */
 @keyframes iFlicker {
   0% { opacity: 0; }
   2% { opacity: 1; }
@@ -235,7 +236,39 @@ h3 {
 }
 
 .i-dot {
-  animation: iFlicker 2.8s linear 0.2s both;
+  animation: iFlicker 1s linear 0.1s both;
+}
+
+/* Printing / Save as PDF: schools and orgs print the rate card for budget
+   approval. Strip the cinema, keep the information legible on white. */
+@media print {
+  :root,
+  body {
+    background: #fff !important;
+  }
+  body {
+    color: #111 !important;
+  }
+  header,
+  #top,
+  #work,
+  .grain-overlay,
+  .cursor-glow {
+    display: none !important;
+  }
+  * {
+    color: #111 !important;
+    background: transparent !important;
+    border-color: #ddd !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  .reveal,
+  .reveal-zoom,
+  .line-draw {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

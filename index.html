@@ -3,21 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lumetric Films · Cinematic Video and Photography</title>
+    <title>Lumetric Films · Cinematic Video & Photography — Bronx, NYC</title>
     <meta
       name="description"
-      content="Lumetric Films creates cinematic video and photography for artists, brands, and unforgettable moments. Music videos, live performance, short form edits, and photography."
+      content="Lumetric Films is a Bronx, NYC studio creating cinematic music videos, live performance films, short-form edits, and photography for artists, schools, and brands."
     />
     <meta name="theme-color" content="#09090b" />
     <link rel="canonical" href="https://lumetric-films.vercel.app/" />
     <link rel="icon" type="image/svg+xml" href="/src/assets/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Lumetric Films" />
-    <meta property="og:title" content="Lumetric Films · Cinematic Video and Photography" />
+    <meta property="og:title" content="Lumetric Films · Cinematic Video & Photography — Bronx, NYC" />
     <meta
       property="og:description"
-      content="Cinematic video and photography for artists, brands, and unforgettable moments."
+      content="Music videos, live shows, and brand films with a cinematic eye — shot, cut, and colored in the Bronx, NYC."
     />
     <meta property="og:url" content="https://lumetric-films.vercel.app/" />
     <meta property="og:image" content="https://lumetric-films.vercel.app/og.png" />
@@ -25,17 +27,17 @@
     <meta property="og:image:height" content="630" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Lumetric Films · Cinematic Video and Photography" />
+    <meta name="twitter:title" content="Lumetric Films · Cinematic Video & Photography — Bronx, NYC" />
     <meta
       name="twitter:description"
-      content="Cinematic video and photography for artists, brands, and unforgettable moments."
+      content="Music videos, live shows, and brand films with a cinematic eye — shot, cut, and colored in the Bronx, NYC."
     />
     <meta name="twitter:image" content="https://lumetric-films.vercel.app/og.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -43,15 +45,11 @@
     <link rel="preconnect" href="https://www.youtube-nocookie.com" />
     <link rel="preconnect" href="https://www.youtube.com" />
     <link rel="preconnect" href="https://i.ytimg.com" />
-    <link rel="preconnect" href="https://s.ytimg.com" />
-    <link rel="dns-prefetch" href="https://googlevideo.com" />
-    <link rel="preload" as="script" href="https://www.youtube.com/iframe_api" />
-    <!-- Hero poster (first showcase video); harmless if the first video changes. -->
+    <!-- Poster for the first showcase tile (just below the hero). -->
     <link
       rel="preload"
       as="image"
       href="https://i.ytimg.com/vi/5DKvqLB0xac/maxresdefault.jpg"
-      fetchpriority="high"
     />
 
     <script type="application/ld+json">
@@ -59,20 +57,27 @@
         "@context": "https://schema.org",
         "@type": "ProfessionalService",
         "name": "Lumetric Films",
-        "description": "Cinematic video and photography for artists, brands, and unforgettable moments.",
+        "description": "Bronx, NYC studio creating cinematic music videos, live performance films, short-form edits, and photography for artists, schools, and brands.",
         "url": "https://lumetric-films.vercel.app/",
         "image": "https://lumetric-films.vercel.app/og.png",
         "email": "lumetricfilms@gmail.com",
         "telephone": "+1-347-847-3788",
         "sameAs": ["https://www.instagram.com/lumetricfilms"],
         "founder": { "@type": "Person", "name": "Jordan Williams" },
-        "areaServed": "US",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Bronx",
+          "addressRegion": "NY",
+          "addressCountry": "US"
+        },
+        "areaServed": { "@type": "City", "name": "New York" },
+        "priceRange": "$100 - $500",
         "serviceType": [
           "Music Videos",
-          "School Videography",
+          "Live Event and School Videography",
           "Short Form Edits",
           "Photography",
-          "Editing"
+          "Video Editing"
         ]
       }
     </script>
@@ -89,9 +94,34 @@
         background: #09090b;
       }
     </style>
+    <noscript>
+      <style>
+        #app-splash {
+          display: none;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
-    <div id="root"><div id="app-splash"></div></div>
+    <div id="root">
+      <div id="app-splash"></div>
+      <noscript>
+        <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font-family: system-ui, sans-serif; padding: 24px;">
+          <div>
+            <p style="font-size: 28px; font-weight: 700; letter-spacing: 0.04em; margin: 0;">LUMETRIC FILMS</p>
+            <p style="color: #a1a1aa; max-width: 32rem; margin: 16px auto 0; line-height: 1.6;">
+              Cinematic video and photography, made in the Bronx, NYC. This site needs
+              JavaScript for the portfolio — or reach out directly:
+            </p>
+            <p style="margin-top: 16px; line-height: 2;">
+              <a href="mailto:lumetricfilms@gmail.com" style="color: #67e8f9;">lumetricfilms@gmail.com</a><br />
+              <a href="tel:+13478473788" style="color: #67e8f9;">(347) 847-3788</a><br />
+              <a href="https://www.instagram.com/lumetricfilms" style="color: #67e8f9;">@lumetricfilms</a>
+            </p>
+          </div>
+        </div>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

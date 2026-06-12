@@ -1,9 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-
-const prefersReducedMotion =
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+import { prefersReducedMotion } from '../lib/media.js';
 
 // Fades/rises an element into view the first time it nears the viewport.
 // variant 'up' (default) translates up; 'zoom' scales in. Honors reduced motion.
@@ -16,10 +12,13 @@ export default function Reveal({
   ...rest
 }) {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(prefersReducedMotion);
+  const [visible, setVisible] = useState(() => prefersReducedMotion());
 
   useEffect(() => {
-    if (prefersReducedMotion) return undefined;
+    if (prefersReducedMotion()) {
+      setVisible(true);
+      return undefined;
+    }
     const el = ref.current;
     if (!el) return undefined;
 

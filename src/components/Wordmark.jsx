@@ -66,8 +66,10 @@ export default function Wordmark({ className = '', revealed = true, stemRevealed
         >
           c
         </text>
+        {/* x is nudged right by half the tracking (54/2) because the trailing
+            letter-space inflates the advance width text-anchor centers on. */}
         <text
-          x="600"
+          x="627"
           y="342"
           fill="#ffffff"
           textAnchor="middle"

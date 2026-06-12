@@ -12,7 +12,7 @@ const contactItems = [
   },
   {
     label: 'Phone',
-    value: '347 847 3788',
+    value: '(347) 847-3788',
     href: 'tel:+13478473788',
     icon: Phone,
   },
@@ -20,6 +20,7 @@ const contactItems = [
     label: 'Instagram',
     value: '@lumetricfilms',
     href: 'https://www.instagram.com/lumetricfilms',
+    external: true,
     icon: Instagram,
   },
 ];
@@ -38,25 +39,27 @@ export default function Contact() {
               Ready to shape the next frame?
             </h2>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
-              Share the project, date, location, and the kind of feeling the finished
-              piece needs to carry.
+              Tell us what you're making and when — we serve the Bronx and all of
+              New York City.
             </p>
             <div className="mt-8">
               <ContactForm />
             </div>
           </Reveal>
           <Reveal delay={120} className="space-y-4">
-            {contactItems.map(({ label, value, href, icon: Icon }) => (
+            {contactItems.map(({ label, value, href, external, icon: Icon }) => (
               <a
                 key={label}
                 href={href}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
                 className="flex items-center gap-4 rounded-lg border border-white/10 bg-white/[0.04] p-4 transition hover:border-cyan-200/40 hover:bg-cyan-300/[0.07]"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-cyan-200/10 text-cyan-200">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <span>
-                  <span className="block text-xs uppercase tracking-[0.22em] text-zinc-500">
+                  <span className="block text-xs uppercase tracking-[0.22em] text-zinc-400">
                     {label}
                   </span>
                   <span className="mt-1 block text-sm font-medium text-white">{value}</span>

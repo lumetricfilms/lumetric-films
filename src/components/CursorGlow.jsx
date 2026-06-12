@@ -1,17 +1,14 @@
 import { useEffect, useRef } from 'react';
+import { hoverCapable, prefersReducedMotion } from '../lib/media.js';
 
-const enabled =
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
-  !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const enabled = () => hoverCapable() && !prefersReducedMotion();
 
 // A soft cyan light that trails the cursor on desktop, for a cinematic feel.
 export default function CursorGlow() {
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!enabled) return undefined;
+    if (!enabled()) return undefined;
     const el = ref.current;
     if (!el) return undefined;
 
@@ -37,6 +34,6 @@ export default function CursorGlow() {
     };
   }, []);
 
-  if (!enabled) return null;
+  if (!enabled()) return null;
   return <div ref={ref} aria-hidden="true" className="cursor-glow" />;
 }

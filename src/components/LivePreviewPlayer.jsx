@@ -1,26 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadYouTubeApi, thumbnailUrl } from '../lib/youtube.js';
-
-const prefersReducedMotion =
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-const hoverCapable =
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+import { hoverCapable, prefersReducedMotion } from '../lib/media.js';
 
 // Plays a silent, looping preview of a start..end segment, scaled to cover the
 // tile when `cover`. When `scrub` (desktop only), moving the pointer across the
-// tile scrubs through the full clip. `muted` can be toggled live (used by the
-// hero sound control). Player is created lazily and torn down off screen.
+// tile scrubs through the full clip. `muted` can be toggled live. `suspended`
+// pauses the preview while something else (the lightbox) is playing. Player is
+// created lazily and torn down off screen.
 export default function LivePreviewPlayer({
   video,
   cover = false,
   scrub = false,
   muted = true,
-  quality,
+  suspended = false,
 }) {
   const { youTubeId, start = 0, end } = video;
 
@@ -32,13 +24,17 @@ export default function LivePreviewPlayer({
   const scrubbingRef = useRef(false);
   const lastScrubRef = useRef(-1);
   const mutedRef = useRef(muted);
+  const suspendedRef = useRef(suspended);
+  // Remembers whether the visibility observer wanted this preview playing, so
+  // un-suspending can resume without waiting for the next intersection change.
+  const visibleWantRef = useRef(false);
 
   const [near, setNear] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [thumbQuality, setThumbQuality] = useState('maxresdefault');
 
-  const shouldInit = near && !prefersReducedMotion;
-  const scrubEnabled = scrub && hoverCapable;
+  const shouldInit = near && !prefersReducedMotion();
+  const scrubEnabled = scrub && hoverCapable();
 
   // Keep the live player's audio in sync with the muted prop.
   useEffect(() => {
@@ -100,7 +96,7 @@ export default function LivePreviewPlayer({
   }, [stopLoop]);
 
   const startPreview = useCallback(() => {
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion() || suspendedRef.current) return;
     wantPlayRef.current = true;
     if (scrubbingRef.current) return;
     const player = playerRef.current;
@@ -132,13 +128,15 @@ export default function LivePreviewPlayer({
   }, []);
 
   useEffect(() => {
-    if (prefersReducedMotion) return undefined;
+    if (prefersReducedMotion()) return undefined;
     const el = containerRef.current;
     if (!el) return undefined;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          const wantVisible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
+          visibleWantRef.current = wantVisible;
+          if (wantVisible) {
             startPreview();
           } else {
             stopPreview();
@@ -150,6 +148,16 @@ export default function LivePreviewPlayer({
     observer.observe(el);
     return () => observer.disconnect();
   }, [startPreview, stopPreview]);
+
+  // Pause while suspended (lightbox open); resume if still in view after.
+  useEffect(() => {
+    suspendedRef.current = suspended;
+    if (suspended) {
+      stopPreview();
+    } else if (visibleWantRef.current) {
+      startPreview();
+    }
+  }, [suspended, startPreview, stopPreview]);
 
   useEffect(() => {
     if (!shouldInit) return undefined;
@@ -180,13 +188,12 @@ export default function LivePreviewPlayer({
           onReady: (event) => {
             if (mutedRef.current) event.target.mute();
             else event.target.unMute();
-            if (quality && typeof event.target.setPlaybackQuality === 'function') {
-              try {
-                event.target.setPlaybackQuality(quality);
-              } catch {
-                // ignore; YouTube may override quality
-              }
-            }
+            // Keep the decorative preview iframe out of the tab order; the
+            // surrounding container is aria-hidden. (The API replaces the
+            // host div, so query from the container.)
+            containerRef.current
+              ?.querySelector('iframe')
+              ?.setAttribute('tabindex', '-1');
             if (wantPlayRef.current) {
               try {
                 event.target.seekTo(start, true);
@@ -203,7 +210,8 @@ export default function LivePreviewPlayer({
             if (event.data === state.PLAYING) {
               setPlaying(true);
             } else if (event.data === state.ENDED) {
-              if (scrubbingRef.current) return;
+              // Only restart if the preview is still supposed to be playing.
+              if (scrubbingRef.current || !wantPlayRef.current) return;
               try {
                 event.target.seekTo(start, true);
                 event.target.playVideo();
@@ -214,6 +222,9 @@ export default function LivePreviewPlayer({
           },
         },
       });
+      // The API inserts the iframe synchronously; pull it out of the tab
+      // order right away (onReady repeats this as a backstop).
+      containerRef.current?.querySelector('iframe')?.setAttribute('tabindex', '-1');
     });
 
     return () => {

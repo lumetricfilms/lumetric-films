@@ -1,0 +1,12 @@
+{
+  "redirects": [
+    { "source": "/work", "destination": "/#work", "permanent": false },
+    { "source": "/services", "destination": "/#services", "permanent": false },
+    { "source": "/pricing", "destination": "/#pricing", "permanent": false },
+    { "source": "/photography", "destination": "/#photography", "permanent": false },
+    { "source": "/about", "destination": "/#about", "permanent": false },
+    { "source": "/contact", "destination": "/#contact", "permanent": false },
+    { "source": "/book", "destination": "/#contact", "permanent": false }
+  ],
+  "rewrites": [{ "source": "/:path*", "destination": "/" }]
+}

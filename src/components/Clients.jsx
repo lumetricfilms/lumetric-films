@@ -1,11 +1,15 @@
+import { showcaseSections } from '../data/showcase.js';
 import Reveal from './Reveal.jsx';
 
 const clients = ['Bronx Dance Academy', 'MMCC', 'Puri'];
 
+// Stats derive from the portfolio data so they never drift out of date.
+const projectCount = showcaseSections.reduce((n, section) => n + section.videos.length, 0);
+
 const stats = [
   { value: '5+', label: 'Years filming' },
-  { value: '9', label: 'Featured projects' },
-  { value: '5', label: 'Disciplines' },
+  { value: String(projectCount), label: 'Featured films' },
+  { value: String(showcaseSections.length), label: 'Disciplines' },
 ];
 
 export default function Clients() {
@@ -13,14 +17,14 @@ export default function Clients() {
     <section className="border-y border-white/5 px-5 py-16 sm:px-8">
       <div className="mx-auto max-w-7xl">
         <Reveal className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-zinc-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-zinc-400">
             Selected work for
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
             {clients.map((client) => (
               <span
                 key={client}
-                className="text-lg font-semibold uppercase tracking-[0.12em] text-zinc-300 transition hover:text-cyan-200 sm:text-xl"
+                className="text-lg font-semibold uppercase tracking-[0.12em] text-zinc-300 sm:text-xl"
               >
                 {client}
               </span>

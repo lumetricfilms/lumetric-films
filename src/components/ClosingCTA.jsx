@@ -17,21 +17,21 @@ export default function ClosingCTA() {
     <section className="vignette relative flex min-h-[70vh] items-center justify-center overflow-hidden bg-black px-5 py-28 sm:px-8">
       {closingVideo ? (
         <div className="absolute inset-0 overflow-hidden">
-          <LivePreviewPlayer video={closingVideo} cover quality="large" />
+          <LivePreviewPlayer video={closingVideo} cover />
         </div>
       ) : null}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,.72),rgba(9,9,11,.6)_45%,rgba(9,9,11,.85))]" />
 
       <Reveal className="relative z-10 mx-auto max-w-3xl text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.4em] text-cyan-200">
-          Let's work together
+          Now booking
         </p>
         <h2 className="mt-5 text-4xl font-semibold text-white drop-shadow sm:text-6xl">
           Let's create something cinematic.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-zinc-300">
-          Tell us about your project and the feeling it should carry, and we will
-          shape the visuals to match.
+          One conversation is enough to scope it — send the idea and get a plan
+          and a quote back.
         </p>
         <a
           href="#contact"

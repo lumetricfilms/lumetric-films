@@ -46,11 +46,16 @@ npm run preview  # serves that production build locally to double check it
 
 **File-size rules**: GitHub rejects files over 100 MB, so keep repo-hosted
 MP4s comfortably under that (a 3–4 minute 1080p video is fine; a 30–45 minute
-full show is not). For long videos, upload the file to external storage with
-free/cheap egress (e.g. Cloudflare R2 or Bunny) and put the full https URL in
-`src` — the site treats it exactly the same. Also note Vercel's free tier
-includes 100 GB/month of bandwidth; a few short portfolio MP4s are fine, many
-long ones are not.
+full show is not). Also note Vercel's free tier includes 100 GB/month of
+bandwidth; a few short portfolio MP4s are fine, many long ones are not.
+
+**Full-length shows live on Cloudflare R2** (bucket `lumetric-videos`,
+public at `https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/` — free
+egress, ~10GB free storage). To add another full show: transcode it for
+streaming (`ffmpeg -i master.mov -c:v libx264 -crf 23 -maxrate 3M -bufsize 6M
+-vf "scale=1920:-2" -c:a aac -b:a 160k -movflags +faststart out.mp4`), upload
+it to the bucket (R2 dashboard or any S3 tool), and put the public URL in the
+entry's `src`. Keep a small local `previewSrc` clip for the tile.
 
 **Caching rule**: `/videos/` and `/photography/` are served with a one-year
 immutable cache (vercel.json). If you ever REPLACE a file's content, rename

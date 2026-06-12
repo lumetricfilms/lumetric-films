@@ -23,43 +23,44 @@ export const showcaseSections = [
     blurb:
       'From packed auditoriums to intimate recitals, we cover live performance with a multi camera eye for motion, light, and the moment a room holds its breath.',
     videos: [
-      // Live performances are deliberately YouTube-free: highlight excerpts
-      // are self-hosted in public/videos/ and only viewable on this site.
-      // start/end are offsets within each excerpt (the stamp sits at 60s).
+      // Live performances are deliberately YouTube-free: tile previews are
+      // small local clips, and the theater streams the FULL show from R2
+      // (free egress) — only viewable on this site. The clips contain the
+      // preview stamp; the full files use the show's own timeline.
       {
         id: 'bda-winter-show',
         title: 'Bronx Dance Academy Winter Show',
-        src: '/videos/bda-winter-show-v2.mp4',
+        src: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/bda-winter-show-full.mp4',
         previewSrc: '/videos/bda-winter-show-preview-v2.mp4',
         poster: '/videos/bda-winter-show-v2.jpg',
-        start: 60,
-        end: 68,
+        start: 359,
+        end: 367,
         layout: 'full',
-        role: 'Show highlights · Filmed and edited by Lumetric Films',
+        role: 'Filmed and edited by Lumetric Films',
         blurb: 'A look inside the Bronx Dance Academy winter show.',
       },
       {
         id: 'mmcc-bda-show',
         title: 'Afterschool Showcase · Bronx Dance Academy at MMCC',
-        src: '/videos/mmcc-bda-show.mp4',
+        src: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/mmcc-bda-show-full.mp4',
         previewSrc: '/videos/mmcc-bda-show-preview.mp4',
         poster: '/videos/mmcc-bda-show.jpg',
-        start: 60,
-        end: 68,
+        start: 2003,
+        end: 2011,
         layout: 'half',
-        role: 'Show highlights · Filmed and edited by Lumetric Films · 2026',
+        role: 'Filmed and edited by Lumetric Films · 2026',
         blurb: 'Highlights from the MMCC afterschool BDA showcase.',
       },
       {
         id: 'roots-of-resilience',
         title: 'Roots of Resilience · Bronx Dance Academy × P.S. 41',
-        src: '/videos/roots-of-resilience.mp4',
+        src: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/roots-of-resilience-full.mp4',
         previewSrc: '/videos/roots-of-resilience-preview.mp4',
         poster: '/videos/roots-of-resilience.jpg',
-        start: 60,
-        end: 72,
+        start: 2534,
+        end: 2546,
         layout: 'half',
-        role: 'Show highlights · Filmed and edited by Lumetric Films · 2026',
+        role: 'Filmed and edited by Lumetric Films · 2026',
         blurb: 'Roots of Resilience, the 2026 BDA and P.S. 41 MMCC show.',
       },
     ],

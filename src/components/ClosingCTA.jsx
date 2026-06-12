@@ -1,4 +1,3 @@
-import { ArrowRight } from 'lucide-react';
 import { showcaseSections } from '../data/showcase.js';
 import LivePreviewPlayer from './LivePreviewPlayer.jsx';
 import Reveal from './Reveal.jsx';
@@ -34,13 +33,6 @@ export default function ClosingCTA() {
           One conversation is enough to scope it — send the idea and get a plan
           and a quote back.
         </p>
-        <a
-          href="#contact"
-          className="mt-9 inline-flex items-center gap-2 rounded-full bg-cyan-200 px-8 py-3.5 text-sm font-semibold text-zinc-950 shadow-[0_0_28px_rgba(34,211,238,.35)] transition hover:bg-white"
-        >
-          Book a Project
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </a>
       </Reveal>
     </section>
   );

@@ -1,35 +1,30 @@
-import { ArrowUpRight } from 'lucide-react';
 import Eyebrow from './Eyebrow.jsx';
 import Reveal from './Reveal.jsx';
 
 // Editorial index rows instead of an icon-card grid, carrying the showcase's
-// numbered, typographic DNA into the lower half of the page.
+// numbered, typographic DNA into the lower half of the page. Display only —
+// not links.
 const services = [
   {
     title: 'Music Videos',
     description: 'Performance, narrative, and stylized visuals shaped around the sound.',
-    href: '#music-videos',
   },
   {
     title: 'Live Events & School Shows',
     description:
       'Concerts, showcases, recitals, and school programs — covered live, delivered as recap films and full-show cuts.',
-    href: '#live-performances',
   },
   {
     title: 'Short Form Edits',
     description: 'Fast social cuts for reels, viral clips, campaigns, and creator content.',
-    href: '#social-short-form',
   },
   {
     title: 'Photography',
     description: 'Portraits, editorial imagery, event stills, and campaign photography.',
-    href: '#photography',
   },
   {
     title: 'Editing',
     description: 'Your footage, finished — rhythmic cuts, color grading, and a final polish ready to post.',
-    href: '#pricing',
   },
 ];
 
@@ -49,25 +44,20 @@ export default function Services() {
             name (max-content), so every description starts at the same edge.
             Each row spans the parent's columns via subgrid. */}
         <Reveal>
-          <div className="border-t border-white/10 lg:grid lg:grid-cols-[5rem_max-content_minmax(0,1fr)_3rem]">
-            {services.map(({ title, description, href }, index) => (
-              <a
+          <div className="border-t border-white/10 lg:grid lg:grid-cols-[5rem_max-content_minmax(0,1fr)]">
+            {services.map(({ title, description }, index) => (
+              <div
                 key={title}
-                href={href}
-                className="group flex flex-col gap-2 border-b border-white/10 py-7 transition duration-300 hover:bg-cyan-300/[0.04] sm:py-8 lg:col-span-4 lg:grid lg:grid-cols-subgrid lg:items-baseline lg:gap-6"
+                className="flex flex-col gap-2 border-b border-white/10 py-7 sm:py-8 lg:col-span-3 lg:grid lg:grid-cols-subgrid lg:items-baseline lg:gap-6"
               >
-                <span className="text-xs font-semibold uppercase tracking-[0.4em] text-cyan-200/70 transition group-hover:text-cyan-200">
+                <span className="text-xs font-semibold uppercase tracking-[0.4em] text-cyan-200/70">
                   {pad(index + 1)}
                 </span>
-                <span className="font-['Space_Grotesk',Inter,sans-serif] text-2xl font-semibold text-white transition duration-300 group-hover:translate-x-1 group-hover:text-cyan-100 sm:text-3xl">
+                <span className="font-['Space_Grotesk',Inter,sans-serif] text-2xl font-semibold text-white sm:text-3xl">
                   {title}
                 </span>
                 <span className="max-w-xl text-sm leading-6 text-zinc-400">{description}</span>
-                <ArrowUpRight
-                  className="hidden h-5 w-5 justify-self-end text-zinc-500 transition duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-cyan-200 lg:block"
-                  aria-hidden="true"
-                />
-              </a>
+              </div>
             ))}
           </div>
         </Reveal>

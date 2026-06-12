@@ -127,6 +127,13 @@ export default function Hero() {
         </div>
       </div>
 
+      {/* Long fade of the whole hero (grid, glow, base) into pure black, so it
+          melts seamlessly into the black first video below instead of cutting. */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-64 bg-gradient-to-b from-transparent to-black sm:h-80"
+        aria-hidden="true"
+      />
+
       <div className="relative z-10 mx-auto w-full max-w-7xl">
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <img
@@ -174,7 +181,7 @@ export default function Hero() {
       </div>
 
       <span
-        className={`pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 ${fade}`}
+        className={`pointer-events-none absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 ${fade}`}
       >
         Scroll
       </span>

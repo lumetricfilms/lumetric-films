@@ -1,5 +1,9 @@
 import { showcaseSections } from '../data/showcase.js';
-import { thumbnailUrl } from '../lib/youtube.js';
+import { isSelfHosted, posterFor, watchUrl } from '../lib/video.js';
+
+const SITE = 'https://lumetric-films.vercel.app';
+
+const absolute = (path) => (path.startsWith('http') ? path : `${SITE}${path}`);
 
 // VideoObject structured data for the portfolio, derived from the showcase
 // data so it never drifts. Rendered as a JSON-LD script in the body (valid
@@ -14,9 +18,13 @@ const itemList = {
       '@type': 'VideoObject',
       name: video.title,
       description: video.blurb || `${section.eyebrow} work by Lumetric Films.`,
-      thumbnailUrl: thumbnailUrl(video.youTubeId, 'hqdefault'),
-      embedUrl: `https://www.youtube-nocookie.com/embed/${video.youTubeId}`,
-      url: `https://www.youtube.com/watch?v=${video.youTubeId}`,
+      thumbnailUrl: absolute(posterFor(video)),
+      ...(isSelfHosted(video)
+        ? { contentUrl: absolute(video.src) }
+        : {
+            embedUrl: `https://www.youtube-nocookie.com/embed/${video.youTubeId}`,
+            url: watchUrl(video),
+          }),
       genre: section.eyebrow,
     })),
   ).map((item, index) => ({ '@type': 'ListItem', position: index + 1, item })),

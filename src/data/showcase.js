@@ -3,8 +3,13 @@
 //   layout: 'full' renders a full width feature tile.
 //   layout: 'half' renders a two column tile (pairs sit side by side).
 //   start / end are in seconds and define the silent looping preview segment.
-//   youTubeId is the video id used for the looping preview; clicking always
-//   opens the full video from the beginning.
+//
+// Video sources — each entry plays from ONE of these (src wins if both set):
+//   src: self-hosted MP4, e.g. '/videos/<id>.mp4' (file in public/videos/,
+//        named after the entry's id) or any absolute https URL for files too
+//        large for the repo. Poster image defaults to the same path with a
+//        .jpg extension (generate with: node scripts/make-posters.mjs).
+//   youTubeId: YouTube fallback used until an MP4 is provided.
 
 export const showcaseSections = [
   {

@@ -28,11 +28,29 @@ npm run preview  # serves that production build locally to double check it
 
 ## Editing the content
 
-- **Videos**: `src/data/showcase.js`. Each entry has `youTubeId` (from the watch
-  URL), `start` / `end` (seconds of the silent looping preview), `layout`
-  (`full` or `half`), and `title` / `role` captions. Clicking a video opens it
-  full size from the beginning. Videos are embedded from YouTube; do not commit
-  large video files to this repository.
+- **Videos**: `src/data/showcase.js`. Each entry has `start` / `end` (seconds
+  of the silent looping preview), `layout` (`full` or `half`), and `title` /
+  `role` captions. Clicking a video opens it full size from the beginning.
+
+### Self-hosting a video (instead of YouTube)
+
+1. Export an MP4 (H.264 + AAC, 1080p, ~4–6 Mbps is plenty) and drop it in
+   `public/videos/`, named after the entry's id — e.g.
+   `public/videos/puri-numb.mp4`.
+2. Add `src: '/videos/puri-numb.mp4'` to that entry in `showcase.js`. The
+   `youTubeId` can stay (it's ignored once `src` exists) or be deleted.
+3. Generate the poster image: `node scripts/make-posters.mjs` (needs ffmpeg:
+   `brew install ffmpeg`). It grabs the frame at the preview `start` second.
+4. Commit and push — previews, hover-scrub, and the theater player all work
+   the same as with YouTube.
+
+**File-size rules**: GitHub rejects files over 100 MB, so keep repo-hosted
+MP4s comfortably under that (a 3–4 minute 1080p video is fine; a 30–45 minute
+full show is not). For long videos, upload the file to external storage with
+free/cheap egress (e.g. Cloudflare R2 or Bunny) and put the full https URL in
+`src` — the site treats it exactly the same. Also note Vercel's free tier
+includes 100 GB/month of bandwidth; a few short portfolio MP4s are fine, many
+long ones are not.
 - **Pricing**: `src/data/pricing.js`. All video and photography packages, the
   add-ons, and the tab labels of the unified Pricing section.
 - **Photography**: `src/data/projects.js` plus the JPGs in `public/photography/`.

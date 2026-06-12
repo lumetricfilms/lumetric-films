@@ -1,15 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ExternalLink, Pause, Play, Volume2, VolumeX, X } from 'lucide-react';
-import { loadYouTubeApi, thumbnailUrl } from '../lib/youtube.js';
+import { loadYouTubeApi } from '../lib/youtube.js';
+import { isSelfHosted, posterFor, watchUrl } from '../lib/video.js';
 import useFocusTrap from '../lib/useFocusTrap.js';
 
 // Theater style modal: a large player with a strip of every video in the same
 // category below it. Picking a thumbnail swaps the player; when a video ends it
 // autoplays the next one in the category. Behaves as a focus trapping dialog.
+// Self-hosted videos play in a native <video> (built-in accessible controls);
+// YouTube videos keep the iframe player, and a playlist can mix both.
 export default function VideoLightbox({ active, onClose, onSelect }) {
   const video = active?.video ?? null;
   const section = active?.section ?? null;
   const isOpen = Boolean(video);
+  const isNative = Boolean(video && isSelfHosted(video));
 
   const backdropRef = useRef(null);
   const dialogRef = useRef(null);
@@ -19,7 +23,7 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
   const playerReadyRef = useRef(false);
 
   const [swapping, setSwapping] = useState(false);
-  // 'loading' | 'ready' | 'unavailable' (YouTube API blocked or failed)
+  // YouTube path only: 'loading' | 'ready' | 'unavailable' (API blocked/failed)
   const [playerState, setPlayerState] = useState('loading');
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -29,6 +33,14 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
   useEffect(() => {
     latest.current = { video, section, onSelect };
   });
+
+  const advanceToNext = useCallback(() => {
+    const { video: current, section: group, onSelect: select } = latest.current;
+    const list = group?.videos ?? [];
+    const index = list.findIndex((item) => item.id === current?.id);
+    const next = index >= 0 && index < list.length - 1 ? list[index + 1] : null;
+    if (next) select(next);
+  }, []);
 
   useFocusTrap({
     active: isOpen,
@@ -44,7 +56,7 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
       if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
       const { video: current, section: group, onSelect: select } = latest.current;
       const list = group?.videos ?? [];
-      const index = list.findIndex((item) => item.youTubeId === current?.youTubeId);
+      const index = list.findIndex((item) => item.id === current?.id);
       if (index >= 0) {
         const target = event.key === 'ArrowRight' ? index + 1 : index - 1;
         if (target >= 0 && target < list.length) {
@@ -57,10 +69,11 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [isOpen]);
 
-  // Create the player once per open session. Switching videos swaps the source
-  // in place (see the next effect) instead of rebuilding the iframe.
+  // YouTube path: create the player once per open session (and tear it down
+  // when the selection switches to a self-hosted video). Switching between two
+  // YouTube videos swaps the source in place (see the next effect).
   useEffect(() => {
-    if (!isOpen) return undefined;
+    if (!isOpen || isNative) return undefined;
     const container = playerContainerRef.current;
     if (!container) return undefined;
 
@@ -81,14 +94,6 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
       host.style.width = '100%';
       host.style.height = '100%';
       playerContainerRef.current.appendChild(host);
-
-      const advanceToNext = () => {
-        const { video: current, section: group, onSelect: select } = latest.current;
-        const list = group?.videos ?? [];
-        const index = list.findIndex((item) => item.youTubeId === current?.youTubeId);
-        const next = index >= 0 && index < list.length - 1 ? list[index + 1] : null;
-        if (next) select(next);
-      };
 
       const createdId = latest.current.video?.youTubeId;
       playerRef.current = new YT.Player(host, {
@@ -154,11 +159,12 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
       }
       if (container) container.innerHTML = '';
     };
-  }, [isOpen]);
+  }, [isOpen, isNative, advanceToNext]);
 
-  // Swap the source inside the existing player when the selection changes.
+  // Swap the source inside the existing YouTube player when the selection
+  // changes between two YouTube videos.
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isNative) return;
     const player = playerRef.current;
     if (
       player &&
@@ -172,7 +178,7 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
         // ignore
       }
     }
-  }, [isOpen, video?.youTubeId]);
+  }, [isOpen, isNative, video?.youTubeId]);
 
   // Brief crossfade on the player when the selection changes.
   useEffect(() => {
@@ -183,19 +189,21 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
     setSwapping(true);
     const timer = window.setTimeout(() => setSwapping(false), 240);
     return () => window.clearTimeout(timer);
-  }, [isOpen, video?.youTubeId]);
+  }, [isOpen, video?.id]);
 
   // When the selected video changes, bring the player back into view.
   useEffect(() => {
     backdropRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [video?.youTubeId]);
+  }, [video?.id]);
 
   if (!isOpen) return null;
 
   const playlist = section?.videos ?? [video];
+  const externalUrl = watchUrl(video);
 
-  // Keyboard-reachable transport controls; the cross origin iframe itself is
-  // excluded from the tab order so it cannot break the focus trap.
+  // YouTube path only: keyboard-reachable transport, because the cross origin
+  // iframe is excluded from the tab order. The native <video> has its own
+  // accessible controls.
   const togglePause = () => {
     const player = playerRef.current;
     if (!player) return;
@@ -237,7 +245,7 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
           onClick={(event) => event.stopPropagation()}
         >
           <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
-            {playerState === 'ready' ? (
+            {!isNative && playerState === 'ready' ? (
               <>
                 <button
                   type="button"
@@ -277,25 +285,40 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
           </div>
 
           <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl shadow-cyan-950/30">
-            {playerState === 'unavailable' ? (
+            {isNative ? (
+              <video
+                key={video.id}
+                src={video.src}
+                poster={posterFor(video)}
+                controls
+                autoPlay
+                playsInline
+                onEnded={advanceToNext}
+                className={`absolute inset-0 h-full w-full bg-black transition-opacity duration-300 ${
+                  swapping ? 'opacity-0' : 'opacity-100'
+                }`}
+              />
+            ) : playerState === 'unavailable' ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
                 <img
-                  src={thumbnailUrl(video.youTubeId, 'hqdefault')}
+                  src={posterFor(video)}
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover opacity-30"
                 />
                 <p className="relative text-base font-medium text-white">
                   The player could not load on this connection.
                 </p>
-                <a
-                  href={`https://www.youtube.com/watch?v=${video.youTubeId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative inline-flex items-center gap-2 rounded-full bg-cyan-200 px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-white"
-                >
-                  Watch on YouTube
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                </a>
+                {externalUrl ? (
+                  <a
+                    href={externalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative inline-flex items-center gap-2 rounded-full bg-cyan-200 px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-white"
+                  >
+                    Watch on YouTube
+                    <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                  </a>
+                ) : null}
               </div>
             ) : (
               <div
@@ -332,7 +355,7 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
               </p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {playlist.map((item) => {
-                  const isActive = item.youTubeId === video.youTubeId;
+                  const isActive = item.id === video.id;
                   return (
                     <button
                       key={item.id}
@@ -347,7 +370,7 @@ export default function VideoLightbox({ active, onClose, onSelect }) {
                       }`}
                     >
                       <img
-                        src={thumbnailUrl(item.youTubeId, 'mqdefault')}
+                        src={posterFor(item, 'mqdefault')}
                         alt=""
                         loading="lazy"
                         className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Play } from 'lucide-react';
 import { showcaseSections } from '../data/showcase.js';
+import { isSelfHosted } from '../lib/video.js';
 import LivePreviewPlayer from './LivePreviewPlayer.jsx';
 import VideoLightbox from './VideoLightbox.jsx';
 import Reveal from './Reveal.jsx';
@@ -129,6 +130,14 @@ function FullScreenVideo({ video, section, showTitle, number, onOpen, suspended 
 }
 
 function TwoColumnVideo({ video, section, onOpen, suspended }) {
+  // The hover zoom is a CSS scale. A cross-origin YouTube iframe gets
+  // re-rasterized under that scale and shows a seam across the tile, which no
+  // layer hint can fix — so the zoom is limited to self-hosted previews.
+  // transform-gpu + backface-hidden keep that scaled layer on its own GPU
+  // plane so its edges don't leave a seam against the black tile.
+  const zoom = isSelfHosted(video)
+    ? 'transform-gpu [backface-visibility:hidden] transition-transform duration-700 ease-out group-hover:scale-[1.04]'
+    : '';
   return (
     <button
       type="button"
@@ -136,7 +145,7 @@ function TwoColumnVideo({ video, section, onOpen, suspended }) {
       aria-label={`Play ${video.title}`}
       className="group relative block aspect-video w-full overflow-hidden bg-black text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
     >
-      <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+      <div className={`absolute inset-0 ${zoom}`}>
         <LivePreviewPlayer video={video} suspended={suspended} />
       </div>
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
@@ -156,7 +165,9 @@ function BannerVideo({ video, section, onOpen, suspended }) {
       aria-label={`Play ${video.title}`}
       className="group relative block aspect-[1897/720] w-full overflow-hidden bg-black text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
     >
-      <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.02]">
+      {/* transform-gpu + backface-hidden keep the scaled layer on its own GPU
+          plane so its edges don't leave a 1px seam against the black tile. */}
+      <div className="absolute inset-0 transform-gpu [backface-visibility:hidden] transition-transform duration-700 ease-out group-hover:scale-[1.02]">
         <LivePreviewPlayer video={video} cover suspended={suspended} />
       </div>
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />

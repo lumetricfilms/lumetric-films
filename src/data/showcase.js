@@ -32,8 +32,8 @@ export const showcaseSections = [
       {
         id: 'bda-winter-show',
         title: 'Bronx Dance Academy Winter Show',
-        src: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/bda-winter-show-full.mp4',
-        hlsSrc: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/hls/bda-winter-show/master.m3u8',
+        src: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/bda-winter-show-full.mp4',
+        hlsSrc: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/hls/bda-winter-show/master.m3u8',
         previewSrc: '/videos/bda-winter-show-preview-v3.mp4',
         poster: '/videos/bda-winter-show-v3.jpg',
         start: 2940,
@@ -45,8 +45,8 @@ export const showcaseSections = [
       {
         id: 'mmcc-bda-show',
         title: 'Afterschool Showcase · Bronx Dance Academy at MMCC',
-        src: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/mmcc-bda-show-full.mp4',
-        hlsSrc: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/hls/mmcc-bda-show/master.m3u8',
+        src: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/mmcc-bda-show-full.mp4',
+        hlsSrc: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/hls/mmcc-bda-show/master.m3u8',
         previewSrc: '/videos/mmcc-bda-show-preview.mp4',
         poster: '/videos/mmcc-bda-show.jpg',
         start: 2003,
@@ -58,8 +58,8 @@ export const showcaseSections = [
       {
         id: 'roots-of-resilience',
         title: 'Roots of Resilience · Bronx Dance Academy × P.S. 41',
-        src: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/roots-of-resilience-full.mp4',
-        hlsSrc: 'https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/hls/roots-of-resilience/master.m3u8',
+        src: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/roots-of-resilience-full.mp4',
+        hlsSrc: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/hls/roots-of-resilience/master.m3u8',
         previewSrc: '/videos/roots-of-resilience-preview.mp4',
         poster: '/videos/roots-of-resilience.jpg',
         start: 2534,

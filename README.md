@@ -50,7 +50,7 @@ full show is not). Also note Vercel's free tier includes 100 GB/month of
 bandwidth; a few short portfolio MP4s are fine, many long ones are not.
 
 **Full-length shows live on Cloudflare R2** (bucket `lumetric-videos`,
-public at `https://pub-8a3821d86adf40a081bf96ce56caaa6a.r2.dev/` — free
+public at `https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/` — free
 egress, ~10GB free storage). To add another full show: transcode it for
 streaming (`ffmpeg -i master.mov -c:v libx264 -crf 23 -maxrate 3M -bufsize 6M
 -vf "scale=1920:-2" -c:a aac -b:a 160k -movflags +faststart out.mp4`), upload

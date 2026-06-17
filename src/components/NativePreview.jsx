@@ -212,6 +212,7 @@ export default function NativePreview({ video, scrub = false, muted = true, susp
         alt=""
         loading="lazy"
         decoding="async"
+        style={{ objectPosition: video.objectPosition }}
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
           playing ? 'opacity-0' : 'opacity-100'
         }`}
@@ -224,6 +225,7 @@ export default function NativePreview({ video, scrub = false, muted = true, susp
           muted
           playsInline
           tabIndex={-1}
+          style={{ objectPosition: video.objectPosition }}
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}
           onLoadedMetadata={handleLoadedMetadata}

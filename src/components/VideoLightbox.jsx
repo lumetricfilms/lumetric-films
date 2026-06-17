@@ -42,6 +42,13 @@ function NativeTheater({ video, swapping, onEnded }) {
     };
   }, [video.hlsSrc, video.src]);
 
+  // Some entries (e.g. the June show) open muted so autoplay is reliable and
+  // the room isn't surprised by sound; the native controls still unmute.
+  useEffect(() => {
+    const el = ref.current;
+    if (el) el.muted = Boolean(video.muted);
+  }, [video.muted]);
+
   return (
     <video
       ref={ref}
@@ -49,6 +56,7 @@ function NativeTheater({ video, swapping, onEnded }) {
       poster={posterFor(video)}
       controls
       autoPlay
+      muted={Boolean(video.muted)}
       playsInline
       onEnded={onEnded}
       className={`absolute inset-0 h-full w-full bg-black transition-opacity duration-300 ${

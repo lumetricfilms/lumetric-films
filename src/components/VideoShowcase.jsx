@@ -145,6 +145,26 @@ function TwoColumnVideo({ video, section, onOpen, suspended }) {
   );
 }
 
+// A full-bleed banner tile: wider and shorter than the full-screen hero,
+// sized to roughly 1897x720 (~2.64:1). Stretches one feature across the full
+// width without taking the whole viewport height.
+function BannerVideo({ video, section, onOpen, suspended }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(video, section)}
+      aria-label={`Play ${video.title}`}
+      className="group relative block aspect-[1897/720] w-full overflow-hidden bg-black text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
+    >
+      <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.02]">
+        <LivePreviewPlayer video={video} cover suspended={suspended} />
+      </div>
+      <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+      <VideoCaption video={video} />
+    </button>
+  );
+}
+
 export default function VideoShowcase() {
   const [active, setActive] = useState(null);
   // Whether we pushed a history entry for the open lightbox (false when the
@@ -220,6 +240,19 @@ export default function VideoShowcase() {
                     onOpen={openVideo}
                     suspended={suspended}
                   />
+                ));
+              }
+
+              if (group.layout === 'banner') {
+                return group.videos.map((video, videoIndex) => (
+                  <Reveal key={video.id} variant="zoom" delay={videoIndex * 120}>
+                    <BannerVideo
+                      video={video}
+                      section={section}
+                      onOpen={openVideo}
+                      suspended={suspended}
+                    />
+                  </Reveal>
                 ));
               }
 

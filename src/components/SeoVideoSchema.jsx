@@ -7,8 +7,8 @@ const absolute = (path) => (path.startsWith('http') ? path : `${SITE}${path}`);
 
 // VideoObject structured data for the portfolio, derived from the showcase
 // data so it never drifts. Rendered as a JSON-LD script in the body (valid
-// for parsers). NOTE: adding a real per-video `uploadDate` to showcase.js
-// would make these eligible for Google video rich results.
+// for parsers). Each video carries a per-video `uploadDate` (set in
+// showcase.js) — the field Google requires for video rich results.
 const itemList = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
@@ -17,6 +17,7 @@ const itemList = {
     section.videos.map((video) => ({
       '@type': 'VideoObject',
       name: video.title,
+      uploadDate: video.uploadDate,
       description: video.blurb || `${section.eyebrow} work by Lumetric Films.`,
       thumbnailUrl: absolute(posterFor(video)),
       ...(isSelfHosted(video)

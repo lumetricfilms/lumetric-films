@@ -32,6 +32,7 @@ export const showcaseSections = [
       {
         id: 'june-show',
         uploadDate: '2026-06-12',
+        duration: 'PT33S',
         title: 'Lumetric June Show',
         src: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/Lumetric%20June%20Show%20Clip.mp4',
         previewSrc: '/videos/lumetric-june-show-preview.mp4',
@@ -48,6 +49,7 @@ export const showcaseSections = [
       {
         id: 'roots-of-resilience',
         uploadDate: '2026-03-27',
+        duration: 'PT1H24M43S',
         title: 'Roots of Resilience · Bronx Dance Academy × P.S. 41',
         src: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/roots-of-resilience-full.mp4',
         hlsSrc: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/hls/roots-of-resilience/master.m3u8',
@@ -62,6 +64,7 @@ export const showcaseSections = [
       {
         id: 'mmcc-bda-show',
         uploadDate: '2026-05-24',
+        duration: 'PT1H8M23S',
         title: 'Afterschool Showcase · Bronx Dance Academy at MMCC',
         src: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/mmcc-bda-show-full.mp4',
         hlsSrc: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/hls/mmcc-bda-show/master.m3u8',
@@ -76,6 +79,7 @@ export const showcaseSections = [
       {
         id: 'bda-winter-show',
         uploadDate: '2025-12-12',
+        duration: 'PT17S',
         title: 'Bronx Dance Academy Winter Show',
         src: 'https://pub-f28b13e3d40748758fec68cce995c20a.r2.dev/Lumetric%20Winter%20Show%20Clip.mp4',
         previewSrc: '/videos/lumetric-winter-show-preview.mp4',
@@ -103,6 +107,7 @@ export const showcaseSections = [
       {
         id: 'bda-gala-may-show',
         uploadDate: '2026-06-12',
+        duration: 'PT3M34S',
         title: 'Bronx Dance Academy · Gala May Show',
         youTubeId: 'ivtPlMJKq-A',
         start: 68,
@@ -114,6 +119,7 @@ export const showcaseSections = [
       {
         id: 'i-am-black-history-month',
         uploadDate: '2026-05-24',
+        duration: 'PT50S',
         title: 'I Am · Black History Month · BDA at MMCC',
         youTubeId: '5NqZCA1xV8Q',
         start: 38,
@@ -135,6 +141,7 @@ export const showcaseSections = [
       {
         id: 'puri-paralyzed',
         uploadDate: '2023-01-01',
+        duration: 'PT3M50S',
         title: 'Puri · Paralyzed',
         youTubeId: 'TzZoL2re2Nk',
         start: 130,
@@ -146,6 +153,7 @@ export const showcaseSections = [
       {
         id: 'puri-numb',
         uploadDate: '2023-01-01',
+        duration: 'PT2M5S',
         title: 'Puri · Numb',
         youTubeId: 'f7y-UysDRa0',
         start: 25,
@@ -167,6 +175,7 @@ export const showcaseSections = [
       {
         id: 'gensler-submission',
         uploadDate: '2024-05-03',
+        duration: 'PT4M46S',
         title: 'Gensler Design Competition · Jaydin Parker',
         youTubeId: 'QjvDxbtBqWs',
         start: 90,
@@ -178,6 +187,7 @@ export const showcaseSections = [
       {
         id: 'urban-health-practice',
         uploadDate: '2024-05-07',
+        duration: 'PT2M44S',
         title: 'Urban Health · Spec Brand Film',
         youTubeId: 'v_3F1Z4T_L8',
         start: 0,
@@ -199,6 +209,7 @@ export const showcaseSections = [
       {
         id: 'kda-huntrx-takedown',
         uploadDate: '2025-08-30',
+        duration: 'PT1M',
         title: 'KDA x HUNTRX Takedown · AMV',
         youTubeId: 'dJO8ZvwvUNc',
         start: 34,
@@ -210,6 +221,7 @@ export const showcaseSections = [
       {
         id: 'dandadan-cortis-go',
         uploadDate: '2025-08-22',
+        duration: 'PT38S',
         title: 'DanDaDan x CORTIS GO! · AMV',
         youTubeId: 'p_EW5UKRWFA',
         start: 0,
@@ -221,6 +233,7 @@ export const showcaseSections = [
       {
         id: 'unlike-me-tai-lung',
         uploadDate: '2025-08-25',
+        duration: 'PT26S',
         title: 'Unlike Me x Kung Fu Panda · Tai Lung',
         youTubeId: '98M4SbMTGo0',
         start: 0,
@@ -232,6 +245,7 @@ export const showcaseSections = [
       {
         id: 'jjk-culling-games',
         uploadDate: '2026-04-03',
+        duration: 'PT1M40S',
         title: 'JJK Culling Games Edit',
         youTubeId: 'lilTm918-es',
         start: 0,
@@ -253,6 +267,7 @@ export const showcaseSections = [
       {
         id: 'throw-a-fit-tiktok',
         uploadDate: '2026-01-01',
+        duration: 'PT58S',
         title: 'Throw a Fit · TikTok Edit',
         youTubeId: 'Ory6In4Iu7Q',
         start: 23,

@@ -18,6 +18,7 @@ const itemList = {
       '@type': 'VideoObject',
       name: video.title,
       uploadDate: video.uploadDate,
+      ...(video.duration ? { duration: video.duration } : {}),
       description: video.blurb || `${section.eyebrow} work by Lumetric Films.`,
       thumbnailUrl: absolute(posterFor(video)),
       ...(isSelfHosted(video)
